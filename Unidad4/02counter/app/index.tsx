@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Pressable, Text, View, StyleSheet } from "react-native";
+import { Pressable, Text, View, StyleSheet, Alert } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 
 
@@ -7,15 +7,35 @@ const Index = () => {
 
 
   const [count, setCount] = useState(0);
-   const handlePress1 = () => {
+  const [total, setTotal] = useState(0);
+
+
+  const handlePress1 = () => {
     setCount(count + 1);
+    const newTotal = total + 1;
+    setTotal(newTotal);
+
+    if (newTotal % 10 == 0) {
+      Alert.alert("¡Has alcanzado 10 interacciones!");
+    }
   };
+
+
   const handlePress2 = () => {
     setCount(count - 1);
+    const newTotal = total + 1;
+    setTotal(newTotal);
+
+    if (newTotal % 10 == 0) {
+      Alert.alert("¡Has alcanzado 10 interacciones!");
+    }
   };
+
+  
+
   
   return (
-   <View style={styles.container}>
+    <View style={styles.container}>
       <Text style={styles.title}>
         Contador: {count}
       </Text>
@@ -27,7 +47,6 @@ const Index = () => {
         <Text style={styles.buttonText}>Decrementar</Text>
         <Ionicons name="remove-circle" size={24} color="white" />
       </Pressable>
-     
     </View>
   );
 }
