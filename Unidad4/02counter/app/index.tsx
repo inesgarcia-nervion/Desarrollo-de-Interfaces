@@ -25,7 +25,7 @@ const Index = () => {
       </Pressable>
       <Pressable onPress={handlePress2} style={styles.buttonDecrementar}>
         <Text style={styles.buttonText}>Decrementar</Text>
-        <Ionicons name="add-circle" size={24} color="white" />
+        <Ionicons name="remove-circle" size={24} color="white" />
       </Pressable>
      
     </View>
