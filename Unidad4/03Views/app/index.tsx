@@ -61,19 +61,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   izquierda:{
-    backgroundColor: 'darkblue',
+    backgroundColor: 'blue',
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   derecha:{
-    backgroundColor: 'darkgreen',
+    backgroundColor: 'green',
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   texto:{
-    color:'purple',
+    color:'blue',
   }
 
 
