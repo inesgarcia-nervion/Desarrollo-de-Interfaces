@@ -50,7 +50,6 @@ const styles = StyleSheet.create({
   footer:{
     backgroundColor: 'lightpink',
     flex: 0.2,
-
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -75,8 +74,6 @@ const styles = StyleSheet.create({
   texto:{
     color:'blue',
   }
-
-
 
 }
 )
