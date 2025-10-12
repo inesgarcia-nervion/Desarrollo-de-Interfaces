@@ -13,23 +13,23 @@ export class Personas{
 
 
     //#region Getters y Setters
-    public get Id(): number{
+    public getId(): number{
         return this._id
     }
 
-    public get Nombre(): string{
+    public getNombre(): string{
         return this._nombre
     }
 
-    public set Nombre(nombre: string) {
+    public setNombre(nombre: string) {
         this._nombre = nombre
     }
 
-    public get Apellidos(): string{
+    public getApellidos(): string{
         return this._apellidos
     }
 
-    public set Apellidos(apellidos: string) {
+    public setApellidos(apellidos: string) {
         this._apellidos = apellidos
     }
 
