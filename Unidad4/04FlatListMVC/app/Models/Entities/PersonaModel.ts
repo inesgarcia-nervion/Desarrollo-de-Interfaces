@@ -1,4 +1,4 @@
-export class Personas{
+export class PersonaModel{
 
     private _id: number;
     private _nombre: string;
