@@ -30,7 +30,7 @@ export class IndexVM {
         if(this.personaSeleccionada){
             alert(`Persona Seleccionada: ${this.personaSeleccionada.Nombre}`);
         }
-  
+
     }
 }
 
