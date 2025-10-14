@@ -13,7 +13,7 @@ const IndexView: React.FC = () => {
         data={vm.Personas}
         renderItem={({ item }) => (
           <View style={styles.item}>
-            <TouchableOpacity onPress={() => {vm.PersonaSeleccionada = item ; vm.alertPersonaSeleccionada()}}>
+            <TouchableOpacity onPress={() => vm.PersonaSeleccionada = item}>
               <Text style={styles.texto}>{item.Nombre}, {item.Apellidos}</Text>
             </TouchableOpacity>
           </View>

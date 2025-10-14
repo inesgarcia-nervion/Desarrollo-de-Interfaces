@@ -23,10 +23,10 @@ export class IndexVM {
 
     public set PersonaSeleccionada(persona: PersonaModel | null){
         this.personaSeleccionada = persona;
-
+        this.alertPersonaSeleccionada();                        //Importante los paréntesis
     }
 
-    public alertPersonaSeleccionada(): void{
+    private alertPersonaSeleccionada(): void{           //Private para que el usuario no pueda acceder
         if(this.personaSeleccionada){
             alert(`Persona Seleccionada: ${this.personaSeleccionada.Nombre}`);
         }
