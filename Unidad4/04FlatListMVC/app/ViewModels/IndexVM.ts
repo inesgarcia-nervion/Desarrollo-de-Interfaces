@@ -3,33 +3,35 @@ import { RepositoryPersona } from "../Models/Data/RepositoryPersona";
 
 export class IndexVM {
     private personas: PersonaModel[];                          
-    private personaSeleccionada: PersonaModel;
+    private personaSeleccionada: PersonaModel | null = null;
 
 
     constructor() {
         //Inicializa la lista de personas desde el modelo
         this.personas = RepositoryPersona.getPersonas();
-        this.personaSeleccionada = this.getPersonaSeleccionada();
     }
 
 
-    //Devuelve la lista completa de personas
-    public getPersonas(): PersonaModel[] {   // Arrays de personas
+    //Devuelve la lista completa de personas 
+    public get Personas(): PersonaModel[] {   // Arrays de personas
         return this.personas;
     }
 
-    public getPersonaSeleccionada(): PersonaModel {
+    public get PersonaSeleccionada(): PersonaModel | null{
         return this.personaSeleccionada
     }
 
-    public setPersonaSeleccionada(persona: PersonaModel) {
+    public set PersonaSeleccionada(persona: PersonaModel | null){
         this.personaSeleccionada = persona;
+
     }
 
-    public getPersonaId(id: number): PersonaModel | undefined{       // Si encuentra una persona con el id buscado, retorna objeto PersonaModel. Si no encuentra, retorna undefined.
-        return this.personas.find(persona => persona.getId() === id);
-    }   // Para coger el id, entramos al repository y buscamos el id de cada persona
-
+    public alertPersonaSeleccionada(): void{
+        if(this.personaSeleccionada){
+            alert(`Persona Seleccionada: ${this.personaSeleccionada.Nombre}`);
+        }
+  
+    }
 }
 
 export default IndexVM;

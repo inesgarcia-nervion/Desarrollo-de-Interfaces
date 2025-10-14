@@ -13,26 +13,27 @@ export class PersonaModel{
 
 
     //#region Getters y Setters
-    public getId(): number{
+    public get Id(): number{
         return this._id
     }
 
-    public getNombre(): string{
+    public get Nombre(): string{
         return this._nombre
     }
 
-    public setNombre(nombre: string) {
+    public set Nombre(nombre: string) {
         this._nombre = nombre
     }
 
-    public getApellidos(): string{
+    public get Apellidos(): string{
         return this._apellidos
     }
 
-    public setApellidos(apellidos: string) {
+    public set Apellidos(apellidos: string) {
         this._apellidos = apellidos
     }
 
     //#endregion
 
 }
+
