@@ -11,14 +11,15 @@ export default function Index() {
           alignItems: "center"
       }}
     >
-      <view style = {{flexDirection: "row"}}>
+      <View style = {{flexDirection: "row"}}>
       <Boton texto="Hola" />
       <Boton texto="Que" />
       <Boton texto="Tal" />
       <Boton texto="Estas" />
-      </view>
+      </View>
     </View>
   )
+
 
 
 }

@@ -1,6 +1,8 @@
-import { Text, View } from "react-native";
+import { useState } from "react";
+import { Text, View, TextInput } from "react-native";
 
 export default function Index() {
+  const [texto, setTexto] = useState("");
   return (
     <View
       style={{
@@ -9,7 +11,8 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
+      <TextInput value={texto} onChangeText={setTexto} style={{borderWidth: 1, borderRadius: 10}}/>
+      <Text>Has escrito: {texto}</Text>
     </View>
   );
 }
