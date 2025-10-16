@@ -1,38 +1,22 @@
 import { Pressable, Text, View } from "react-native";
-
-function Boton({ texto }: { texto: string }) {
-  return (
-    <Pressable
-      onPress={() => alert(`Hola: ${texto}`)}
-      style={{
-        backgroundColor: "#ddd",
-        padding: 10,
-        margin: 5,
-        borderRadius: 5,
-      }}
-    >
-      <Text>{texto}</Text>
-    </Pressable>
-  );
-}
-
+import Boton from "@/components/Boton";
 
 
 export default function Index() { 
   return(
     <View
       style={{
-          backgroundColor: "#ddd",
-          padding: 10,
-          margin: 5,
-          borderRadius: 5,
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center"
       }}
     >
-      <Boton texto="Hola"></Boton>
-      <Boton texto="Que"></Boton>
-      <Boton texto="Tal"></Boton>
-      <Boton texto="Estas"></Boton>
-
+      <view style = {{flexDirection: "row"}}>
+      <Boton texto="Hola" />
+      <Boton texto="Que" />
+      <Boton texto="Tal" />
+      <Boton texto="Estas" />
+      </view>
     </View>
   )
 
