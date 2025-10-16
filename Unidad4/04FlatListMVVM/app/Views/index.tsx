@@ -6,7 +6,6 @@ const IndexView: React.FC = () => {
   const vm = new IndexVM();
 
   
-//alert(vm.Personas.length)
   return (
     <View style={styles.container}>
       <FlatList
