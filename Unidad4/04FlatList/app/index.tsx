@@ -1,4 +1,5 @@
-import { Text, View, FlatList, StyleSheet } from "react-native";
+import React from "react";
+import { FlatList, Text, View, StyleSheet } from "react-native";
 
 const listaPersonas = [
   { id: 1, nombre: 'Ana', apellidos: 'García López' },
@@ -16,39 +17,31 @@ const listaPersonas = [
   { id: 13, nombre: 'Carmen', apellidos: 'Castillo Díaz' },
   { id: 14, nombre: 'Andrés', apellidos: 'Gómez Ramírez' },
   { id: 15, nombre: 'Patricia', apellidos: 'Vázquez Molina' },
-]
-
-
+];
 
 export default function Index() {
   return (
     <FlatList
-      data={listaPersonas}
-      keyExtractor={item => item.id.toString()}       //Paréntesis importante
-      renderItem={({ item }) => (
-        <View style= {styles.item}>
-          <Text style= {styles.texto}>{item.nombre}, {item.apellidos}</Text>
+      data={listaPersonas}                                       //Le pasamos el array de personas como fuente de datos.
+      keyExtractor={item => item.id.toString()}                  //Cada elemento necesita una key única para que React Native optimice la renderización. Aquí usamos el id de cada persona y lo convertimos a string.
+      renderItem={({ item }) => (                                //Es una función que define cómo se muestra cada elemento de la lista.
+        <View style={styles.item}>
+          <Text style={styles.texto}>
+            {item.nombre}, {item.apellidos}
+          </Text>
         </View>
       )}
     />
-      
   );
 }
 
-
-
-
-//#region styles
 const styles = StyleSheet.create({
   item: {
     alignItems: 'center', 
     margin: 10,  
   },
-  texto:{
-    color:'purple',
+  texto: {
+    color: 'purple',
     fontSize: 20,
   }
-
-}
-)
-//#endregion
+});

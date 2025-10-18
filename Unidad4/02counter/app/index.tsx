@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "react";                        //useState: Hook que permite guardar y actualizar valores (en este caso, el contador).
 import { Pressable, Text, View, StyleSheet, Alert } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 
@@ -7,7 +7,7 @@ const Index = () => {
 
 
   const [count, setCount] = useState(0);
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState(0);                        //Cada vez que se presiona un botón, se actualizan con setCount y setTotal.
 
 
   const handlePress1 = () => {
