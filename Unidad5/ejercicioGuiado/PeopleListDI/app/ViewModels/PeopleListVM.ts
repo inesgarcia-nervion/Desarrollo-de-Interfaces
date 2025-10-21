@@ -4,8 +4,6 @@ import { TYPES } from "../Core/types";
 import { IRepositoryPersonas } from "../Models/Data/personasRepository";
 
 
-
-
 export class PeopleListVM {
 
 
@@ -15,15 +13,9 @@ export class PeopleListVM {
 
 
     constructor(
-        @inject(TYPES.IRepositoryPersonas)
-        private RepositoryPersonas: IRepositoryPersonas
-    ) {
-
-
-       
+        @inject(TYPES.IRepositoryPersonas) private RepositoryPersonas: IRepositoryPersonas ) 
+    {
         this._personaSeleccionada = new Persona(0, '', '');
-
-
         this._personasList = this.RepositoryPersonas.getListadoCompletoPersonas();
      
     }

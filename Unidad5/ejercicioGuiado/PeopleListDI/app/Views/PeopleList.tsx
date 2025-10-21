@@ -20,9 +20,6 @@ const renderItem = ({ item }: { item: Persona }) => (
   );
 
 
- 
-
-
     return (
       <SafeAreaView style={styles.container}>
         <Text style={styles.titulo}>Listado de Personas</Text>
