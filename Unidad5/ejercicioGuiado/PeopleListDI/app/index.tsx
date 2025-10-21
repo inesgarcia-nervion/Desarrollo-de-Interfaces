@@ -1,15 +1,8 @@
-import { Text, View } from "react-native";
+import PeopleList from "./Views/PeopleList";
 
-export default function Index() {
+
+export default function App() {
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
-    </View>
+    <PeopleList/>         // Se imprime la listas que creamos en Models/Data
   );
 }
