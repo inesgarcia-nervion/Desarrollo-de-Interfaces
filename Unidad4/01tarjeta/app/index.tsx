@@ -30,6 +30,5 @@ const styles = StyleSheet.create({
   }
 }
 
-
 )
 

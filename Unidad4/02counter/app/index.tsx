@@ -32,7 +32,6 @@ const Index = () => {
   };
 
   
-
   
   return (
     <View style={styles.container}>

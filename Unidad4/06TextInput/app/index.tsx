@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Text, View, TextInput } from "react-native";
 
+
 export default function Index() {
   const [texto, setTexto] = useState("");
   return (

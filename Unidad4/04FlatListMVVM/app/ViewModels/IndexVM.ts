@@ -34,4 +34,5 @@ export class IndexVM {
     }
 }
 
+
 export default IndexVM;

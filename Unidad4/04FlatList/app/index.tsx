@@ -35,6 +35,7 @@ export default function Index() {
   );
 }
 
+
 const styles = StyleSheet.create({
   item: {
     alignItems: 'center', 
