@@ -1,9 +1,17 @@
+//Contiene la lógica de acceso a los datos.
+//Hoy devuelve datos ficticios, pero en el futuro podría hacer peticiones a una API.
+//Repositorio → ViewModel → Vista → Usuario
+
+
 import { injectable } from "inversify";
 import { Persona } from "../Entities/Persona";
 
 
 
+//Define qué deben hacer los repositorios, sin importar cómo lo hagan.
 
+//Cualquier clase que implemente IRepositoryPersonas debe tener un método 
+//llamado getListadoCompletoPersonas() que devuelve un arreglo de Persona.
 export interface IRepositoryPersonas {
     getListadoCompletoPersonas(): Persona[];
 }
@@ -14,13 +22,7 @@ export interface IRepositoryPersonas {
 @injectable()
 export class PersonasRepository implements IRepositoryPersonas{
 
-
-
-
     getListadoCompletoPersonas(): Persona[] {
-
-
-
 
         //En un futuro, esto podría hacer llamadas a una API que nos ofreciera los datos
         return [
