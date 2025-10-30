@@ -10,7 +10,7 @@
 
 
 import { inject, injectable } from "inversify";
-import { IPersonasRepository } from "../../domain/interfaces/repositories/IPersonasRepository";
+import { IPersonasRepositoryUseCase } from "@/app/domain/interfaces/repositories/IPersonasRepositoryUseCase";       
 import { Persona } from "../../domain/entities/Persona";
 import { TYPES } from "../../core/types";
 
@@ -21,9 +21,9 @@ export class PeopleListVM {
     private _personaSeleccionada: Persona;
 
 
-    constructor(@inject(TYPES.IPersonasRepository) private RepositoryPersonas: IPersonasRepository) {
+    constructor(@inject(TYPES.IPersonasRepositoryUseCase) private PersonasUseCases: IPersonasRepositoryUseCase) {
         this._personaSeleccionada = new Persona(0, '', '');
-        this._personasList = this.RepositoryPersonas.getListadoCompletoPersonas();
+        this._personasList = this.PersonasUseCases.getListadoFiltradoPorNombre('');
     }
 
 
@@ -40,6 +40,10 @@ export class PeopleListVM {
     public set personaSeleccionada(value: Persona) {
         this._personaSeleccionada = value;
     
+    }
+
+    public filtrarPersonasPorNombre(nombre: string){
+        this._personasList = this.PersonasUseCases.getListadoFiltradoPorNombre(nombre);
     }
 
 
