@@ -6,7 +6,7 @@ import "reflect-metadata";
 import { TYPES } from "./types";
 
   //Se importan aquí todas las clases creadas en el data/repositories
-import { PersonasRepository } from "../data/repositories/personasRepository";
+import { PersonasRepository } from "../data/repositories/PersonasRepository";
 import { PersonasRepositoryEmpty } from "../data/repositories/PersonasRepositoryEmpty";
 import { PersonasRepository100 } from "../data/repositories/PersonasRepository100";
 
