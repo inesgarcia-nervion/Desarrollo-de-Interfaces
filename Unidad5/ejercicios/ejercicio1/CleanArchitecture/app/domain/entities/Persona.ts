@@ -2,12 +2,13 @@
 
 export class Persona {
   
-  
-    //#region Propiedades privadas
+  //#region Propiedades privadas
   private _id: number;
   private _nombre: string;
   private _apellidos: string;
   //#endregion
+
+
 
   //#region Constructor
   constructor(id: number, nombre: string, apellidos: string) {
@@ -16,6 +17,8 @@ export class Persona {
     this._apellidos = apellidos;
   }
   //#endregion
+
+
 
   //#region Getters y Setters
   public get id(): number {

@@ -20,7 +20,7 @@ const container = new Container();
 
 
 // Vinculamos la interfaz con su implementación concreta
-container.bind<IPersonasRepository>(TYPES.IPersonasRepository).to(PersonasRepository)  //En esta línea cambias a las clases que quieren que aparezcan
+container.bind<IPersonasRepository>(TYPES.IPersonasRepository).to(PersonasRepository100)  //En esta línea cambias a las clases que quieren que aparezcan
 
 // Use case 
 container.bind<IPersonasRepositoryUseCase>(TYPES.IPersonasRepositoryUseCase).to(PersonasUseCases);

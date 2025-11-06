@@ -15,11 +15,19 @@ export class PersonasUseCases implements IPersonasRepositoryUseCase {
         private personasRepository: IPersonasRepository
     ) {}
     
-    // Regla de negocio: filtrar personas por nombre
+    // Filtrado de personas por nombre
     getListadoFiltradoPorNombre(nombre: string): Persona[] {
         const listado = this.personasRepository.getListadoCompletoPersonas();
         return listado.filter(p => p.nombre.toLowerCase().includes(nombre.toLowerCase()));
     }
+    //Devuelve un listado completo 
+     getListadoCompleto(): Persona[] {
+        const listado = this.personasRepository.getListadoCompletoPersonas();
+        return listado;
+    }
+    
+
+    //Ejemplo de Regla de negocio: Personas mayores de 18 (en el caso de que incomporasemos las edades de cada usuario)
         
 
 }
