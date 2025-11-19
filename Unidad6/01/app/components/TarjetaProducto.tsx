@@ -15,7 +15,7 @@ export function TarjetaProducto({ name, price, image, onAddToCart}: Props) {
         <View style={styles.card}>
             <Image source={{ uri: image}} style={styles.image}/>
             <Text style={styles.name}>{name}</Text>
-            <Text style={styles.price}>{price}</Text>
+            <Text style={styles.price}>{price} €</Text>
 
             <BotonPersonalizado
                 label='Add to cart'
@@ -30,26 +30,24 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         padding: 16,
         borderRadius: 12,
-        width: 200
+        width: 170,
+        margin: 10
     },
     image: {
         width: 120,
-        height: 140,
+        height: 120,
         marginBottom: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-        margin: 20
+        alignSelf: 'center',
     },
     name: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
-        marginBottom: 4,
         textAlign: 'center'
     },
     price: {
         fontSize: 16,
         fontWeight: 'bold',
-        marginBottom: 20,
+        marginVertical: 10,
         textAlign: 'center'
     }
 });
