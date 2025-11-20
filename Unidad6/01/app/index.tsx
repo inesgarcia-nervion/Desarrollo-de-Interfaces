@@ -4,6 +4,8 @@ import { TarjetaProducto } from './components/TarjetaProducto';
 
 export default function Index() {
 
+  const [cantidad, setCantidad] = useState(0);
+
   const productos = [
     {
       id: "1",
@@ -40,9 +42,14 @@ export default function Index() {
 
         <View style={styles.cartContainer}>
           <Image 
-            source={{ uri: "https://thumbs.dreamstime.com/b/icono-de-l%C3%ADnea-carro-compra-trazo-negro-editable-trole-concepto-negocios-cestas-carrito-con-n%C3%BAmero-compras-vector-ilustraci%C3%B3n-170268189.jpg" }}
+            source={{ uri: "https://cdn-icons-png.flaticon.com/512/107/107831.png" }}
             style={styles.cartIcon}
           />
+          {cantidad > 0 && (
+            <View style={styles.circulo}>
+              <Text style={styles.text}>{cantidad}</Text>
+            </View>
+          )}
         </View>
       </View>   
 
@@ -57,7 +64,7 @@ export default function Index() {
             name={item.name}
             price={item.price}
             image={item.image}
-            onAddToCart={() => console.log("Producto añadido:")}
+            onAddToCart={() => setCantidad(cantidad + 1)}
           />
         )}
       />
@@ -68,7 +75,7 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: 40,
+    paddingTop: 10,
     flex: 1,
     backgroundColor: "#f2f2f2"
   },
@@ -101,5 +108,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingBottom: 40
+  },
+  circulo: {
+    position: 'absolute',
+    top: -5,
+    right: -5,
+    backgroundColor: 'red',
+    borderRadius: 10,
+    paddingHorizontal: 6,
+    paddingVertical: 2
+  },
+  text: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 12
   }
 });
