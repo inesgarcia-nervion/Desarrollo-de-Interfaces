@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Image } from 'react-native';
-import { TarjetaProducto } from './components/TarjetaProducto';
+import { TarjetaProducto } from './views/TarjetaProducto';
 
 export default function Index() {
 

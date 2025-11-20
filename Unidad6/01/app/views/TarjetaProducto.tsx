@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
-import { BotonPersonalizado } from './BotonPersonalizado';
+import { BotonPersonalizado } from '../components/BotonPersonalizado';
 
 type Props = {
     name: string,
