@@ -26,9 +26,9 @@ export function BotonPersonalizado({ label, onPress, color = '#FFA500' }: Props)
 const styles = StyleSheet.create({
     button:{
         padding: 10, 
-        borderRadius: 8,
+        borderRadius: 25, //Bordes
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
     },
     text: {
         color: '#fff',

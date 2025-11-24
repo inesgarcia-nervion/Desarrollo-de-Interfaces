@@ -5,26 +5,16 @@ import { Link } from 'expo-router';
 
 export default function Registro(){
     return (
-      <View style = {{
-        justifyContent: "center",
-        alignItems: "center",
-      }}>
-        <View style={styles.container}>
-            <Text style = {styles.title}>INGRESAR</Text>
-            <TextInput
-              placeholder='Usuario'
-              style={styles.text}
-            />
-            <TextInput
-              placeholder='Contraseña'
-              style={styles.text}
-            />
-            <Link href="/views/Login" asChild>
-                <BotonPersonalizado label="Ir a Login" />
-            </Link>
-        </View>
+      <View style={styles.container}>
+
+        <Text style={styles.text}>Página de registro</Text>
+
+        {/* Link a Login */}
+        <Link href="/views/Login" asChild>
+          <BotonPersonalizado label="Ir a Login" />
+        </Link>    
       </View>
-    );
+  );
 }
 
 
@@ -34,10 +24,6 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     flex: 1,
     backgroundColor: "#f2f2f2"
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
   },
   text: {
       fontWeight: 'bold',
