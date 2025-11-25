@@ -21,36 +21,7 @@ export default function Login() {
 
 
       {/* ContenedorAbajo*/}
-      <ContenedorAbajo>
-        <Text style={styles.titulo}>INGRESAR</Text>
-
-        {/* Inputs */}
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>Correo electrónico</Text>
-            <TextInput 
-                placeholder="ejemplo@correo.com" 
-                style={styles.input} 
-                placeholderTextColor="#999" 
-            />
-          <Text style={styles.label}>Contraseña</Text>
-            <TextInput 
-                placeholder="********" 
-                secureTextEntry 
-                style={styles.input} 
-                placeholderTextColor="#999"
-          />
-        </View>
-  
-
-        {/* Link a Registro */}
-        <View style={{ marginTop: 15, alignItems: 'center' }}>
-            <Text>No tienes cuenta?</Text>
-            <Link href="/views/Registro" asChild>
-                <BotonPersonalizado label="Ir a Registro" />
-            </Link>
-        </View>
-
-      </ContenedorAbajo>
+      <ContenedorAbajo/>
 
     </ImageBackground>
   );

@@ -2,12 +2,12 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 
-export default function Registro(){
+export default function Home(){
     return (
     <View style={styles.container}>
         <Stack.Screen options={{ headerShown: true, title: "Inicio" }} />
         
-        <Text style={styles.text}>Página de Registro</Text>
+        <Text style={styles.text}>Te has logueado correctamente</Text>
     </View>
     );
 }
