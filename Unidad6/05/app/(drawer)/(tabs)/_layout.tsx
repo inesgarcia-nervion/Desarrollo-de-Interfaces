@@ -18,7 +18,7 @@ export default function TabsLayout() {
             name="index"
             options={{
                 title:"Inicio",
-                headerShown: true,  
+                headerShown: false,                 // Ocultar el encabezado en la pantalla de inicio
                 tabBarIcon: ({ color,size }) => (
                     <Ionicons
                     name="home"
@@ -30,10 +30,10 @@ export default function TabsLayout() {
         />
 
         <Tabs.Screen
-            name="perfil"
+            name="profile"
             options={{
                 title:"Perfil",
-                headerShown: true,  
+                headerShown: false,         // Ocultar el encabezado en la pantalla de perfil
                 tabBarIcon: ({ color,size }) => (
                     <Ionicons
                     name="person"
@@ -60,5 +60,5 @@ export default function TabsLayout() {
         />
         
     </Tabs>
-  );
+    );
 }
