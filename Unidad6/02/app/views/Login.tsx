@@ -30,7 +30,7 @@ export default function Login() {
             <TextInput 
                 placeholder="ejemplo@correo.com" 
                 style={styles.input} 
-                placeholderTextColor="#999" // Color del texto de ayuda (gris)
+                placeholderTextColor="#999" 
             />
           <Text style={styles.label}>Contraseña</Text>
             <TextInput 

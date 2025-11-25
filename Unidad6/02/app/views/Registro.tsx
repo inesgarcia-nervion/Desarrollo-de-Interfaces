@@ -5,7 +5,7 @@ import { Link } from 'expo-router';
 
 export default function Registro(){
     return (
-      <View style={styles.container}>
+      <View>
 
         <Text style={styles.text}>Página de registro</Text>
 
@@ -20,15 +20,8 @@ export default function Registro(){
 
 
 const styles = StyleSheet.create({
-  container: {
-    paddingTop: 10,
-    flex: 1,
-    backgroundColor: "#f2f2f2"
-  },
   text: {
       fontWeight: 'bold',
-      borderWidth: 2,
-      borderColor: "bold",
       marginTop: 10,
       marginBottom: 10
   }

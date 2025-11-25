@@ -1,5 +1,5 @@
-import Registro from "./views/Registro";
+import Login from "./views/Login";
 
 export default function Index() {
-  return <Registro />;
+  return <Login />;
 }
