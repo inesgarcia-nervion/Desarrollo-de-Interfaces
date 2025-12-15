@@ -12,14 +12,17 @@ export class PersonasUseCases implements IPersonasRepositoryUseCase {
         private personasRepository: IPersonasRepository
     ) {}
 
-    getListadoFiltradoPorNombre(nombre: string): Persona[] {
-        const listado = this.personasRepository.getListadoCompletoPersonas();
+
+    // CAMBIO 5 
+    async getListadoCompleto(): Promise<Persona[]> {
+        // Esperamos a que el repo traiga los datos
+        return await this.personasRepository.getListadoCompletoPersonas();
+    }
+
+    async getListadoFiltradoPorNombre(nombre: string): Promise<Persona[]> {
+        const listado = await this.personasRepository.getListadoCompletoPersonas();
         return listado.filter(p =>
             p.nombre.toLowerCase().includes(nombre.toLowerCase())
         );
-    }
-
-    getListadoCompleto(): Persona[] {
-        return this.personasRepository.getListadoCompletoPersonas();
     }
 }

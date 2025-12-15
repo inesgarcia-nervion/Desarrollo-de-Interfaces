@@ -9,6 +9,7 @@ export class PeopleListVM {
 
     private _personasList: Persona[] = [];
     private _personaSeleccionada: Persona;
+    private isLoading: boolean = false; // Nuevo: para mostrar un spinner
 
     constructor(
         @inject(TYPES.IPersonasRepositoryUseCase)

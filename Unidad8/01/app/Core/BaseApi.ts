@@ -4,7 +4,8 @@ import { injectable } from "inversify";
 export class BaseApi {
     // Aquí podrías implementar lógica común para las llamadas a APIs,
     // como configuración de headers, manejo de errores, etc.
-    private readonly BASE_URL: string = "https://api.ejemplo.com";
+    // CAMBIO 1: Pon aquí la URL base de tu API de Azure real
+    private readonly BASE_URL: string = "https://ines-frhqgndaghcnfpds.italynorth-01.azurewebsites.net";
 
     public getBaseUrl(endpoint: string): string {
         const url = new URL(endpoint, this.BASE_URL);
