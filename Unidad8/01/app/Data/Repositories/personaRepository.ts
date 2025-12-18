@@ -17,35 +17,33 @@ export class PersonaRepositoryImp implements IPersonaRepository {
     }
 
     async getPersonas(): Promise<Persona[]> {
-        const url = this.api.getUrl('personas'); // Endpoint: /api/personas
-
-        try{
+        const url = this.api.getUrl('personas'); 
+        try {
             const response = await fetch(url, {
                 method: 'GET',
                 headers: this.api.getDefaultHeaders(),
             });
 
-            // 1. Manejo de errores HTTP
-            if (!response.ok) {
-                // Lanza un error con el estado HTTP (ej: 404, 500)
-                throw new Error('Fallo en la API: ${response.status} ${response.statusText}');
-            }
+            if (!response.ok) throw new Error('Error al conectar con Azure');
 
-            // 2. Extracción de datos
-            const data: PersonaDto[] = await response.json();
+            const data = await response.json();
+            
+            // 1. Imprime esto en tu consola para ver los nombres reales de las columnas
+            console.log("JSON de Azure:", data);
 
-            // Mapeo (si fuera necesario, aqui seria de DTO a Entity)
-            const personas: Persona[] = data;
+            // 2. Mapeamos la lista. Aunque Azure traiga 'departamento', lo ignoramos aquí.
+            return data.map((p: any) => {
+                return new Persona(
+                    p.id || p.Id || 0,
+                    p.nombre || p.Nombre || "Sin nombre",
+                    p.apellidos || p.Apellidos || "Sin apellidos",
+                    p.edad || p.Edad || 0
+                );
+            });
 
-            return personas;
         } catch (error) {
-            // Este catch maneja errores de red o los errores lanzados arriba
-            let errorMessage = "Fallo al conectar con la API de Azure.";
-            if (error instanceof Error) {
-                errorMessage = error.message;
-            }
-            console.error("Error al obtener personas:", error);
-            throw new Error(errorMessage);
+            console.error("Error en el repositorio:", error);
+            throw error;
         }
     }
 }

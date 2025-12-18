@@ -1,24 +1,23 @@
-import { Container } from "inversify";
 import "reflect-metadata";
+import { Container } from "inversify";
 import { TYPES } from "./types";
-
-import { PersonasRepository100 } from "../Data/Repositories/personasRepository100";
-import { IPersonasRepository } from "../Domain/Interfaces/Repositories/IPersonaRepository";
-
-import { PersonasUseCases } from "../Domain/Usecases/GetPersonasUseCase";
-import { IPersonasRepositoryUseCase } from "../Domain/Interfaces/Usecases/IGetPersonasUseCase.ts";
-
-import { PeopleListVM } from "../UI/ViewModels/PeopleListVM";
+import { BaseApi } from "./BaseApi";
+import { PersonaRepositoryImp } from "../Data/Repositories/personaRepository";
+import { GetPersonasUseCases } from "../Domain/Usecases/GetPersonasUseCase";
+import { PersonaListVM } from "../UI/ViewModels/PersonaListVM";
 
 const container = new Container();
 
+// API
+container.bind<BaseApi>(TYPES.BaseApi).to(BaseApi).inSingletonScope();
+
 // REPOSITORIO
-container.bind<IPersonasRepository>(TYPES.IPersonasRepository).to(PersonasRepository100);
+container.bind<any>(TYPES.IPersonaRepository).to(PersonaRepositoryImp);
 
 // USE CASE
-container.bind<IPersonasRepositoryUseCase>(TYPES.IPersonasRepositoryUseCase).to(PersonasUseCases);
+container.bind<any>(TYPES.GetPersonasUseCase).to(GetPersonasUseCases);
 
 // VIEW MODEL
-container.bind<PeopleListVM>(TYPES.PeopleListVM).to(PeopleListVM);
+container.bind<PersonaListVM>(TYPES.PersonaListVM).to(PersonaListVM);
 
 export { container };

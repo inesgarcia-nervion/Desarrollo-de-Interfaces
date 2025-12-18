@@ -1,5 +1,5 @@
-import PeopleList from "../../../Unidad8/PeopleListDI/app/UI/Views/PeopleList";
+import PersonaList from "./UI/Views/PersonaList";
 
 export default function Index() {
-  return <PeopleList />;
+  return <PersonaList />;
 }

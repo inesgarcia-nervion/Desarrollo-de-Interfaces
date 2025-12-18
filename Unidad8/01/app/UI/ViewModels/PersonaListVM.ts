@@ -7,7 +7,7 @@ import { TYPES } from "../../Core/types";
 
 
 @injectable()
-export class PeopleListVM {
+export class PersonaListVM {
 
     private _personasList: Persona[] = [];
     private _personaSeleccionada: Persona;
@@ -15,17 +15,17 @@ export class PeopleListVM {
     private _error: string | null = null;
 
     // El caso de uso lo manejaremos internamente
-    private getPersonasUseCase: GetPersonasUseCases;
+    private getPersonasUseCases: GetPersonasUseCases;
 
     constructor(
         // Inyectamos el Caso de Uso (GetPersonasUseCase)
-        @inject(TYPES.PersonasRepositoryUseCase)
-        private personasUseCases: PersonasRepositoryUseCase;
+        @inject(TYPES.GetPersonasUseCase)
+        private GetPersonasUseCases: GetPersonasUseCases
     ) {
-        this.getPersonasUseCase = this.getPersonasUseCase;
+        this.getPersonasUseCases = this.GetPersonasUseCases;
 
         // AJUSTA esta inicialización según la clase Persona real
-        this.personaSeleccionada = new Persona(0, '', '');
+        this._personaSeleccionada = new Persona(0, '', '', 0);
 
         // -----------------------------------------------------------
         // PASO CLAVE: MobX se encarga de inferir todo automáticamente
@@ -73,7 +73,7 @@ export class PeopleListVM {
 
         try{
             // Llama al Caso de Uso (Dominio) para obtener los datos 
-            const data = await this.getPersonasUseCase.execute();
+            const data = await this.getPersonasUseCases.execute();
 
             // MobX actualiza _personasList, notificando a las vistas
             this._personasList = data;

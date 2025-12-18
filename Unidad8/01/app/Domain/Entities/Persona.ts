@@ -7,15 +7,17 @@ export class Persona {
   private _id: number;
   private _nombre: string;
   private _apellidos: string;
+  private _edad: number;
   //#endregion
 
 
 
   //#region Constructor
-  constructor(id: number, nombre: string, apellidos: string) {
+  constructor(id: number, nombre: string, apellidos: string, edad: number) {
     this._id = id;
     this._nombre = nombre;
     this._apellidos = apellidos;
+    this._edad = edad;
   }
   //#endregion
 
@@ -47,6 +49,16 @@ export class Persona {
 
   public set apellidos(value: string) {
     this._apellidos = value;
+  }
+
+
+
+  public get edad(): number {
+    return this._edad;
+  }
+
+  public set edad(value: number) {
+    this._edad = value;
   }
   //#endregion
 

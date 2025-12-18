@@ -1,5 +1,6 @@
 export const TYPES = {
-    IPersonasRepository: Symbol.for("IPersonasRepository"),
-    IPersonasRepositoryUseCase: Symbol.for("IPersonasRepositoryUseCase"),
-    PeopleListVM: Symbol.for("PeopleListVM"),
+    BaseApi: Symbol.for("BaseApi"),
+    IPersonaRepository: Symbol.for("IPersonaRepository"), 
+    GetPersonasUseCase: Symbol.for("GetPersonasUseCase"), 
+    PersonaListVM: Symbol.for("PersonaListVM"),
 };
