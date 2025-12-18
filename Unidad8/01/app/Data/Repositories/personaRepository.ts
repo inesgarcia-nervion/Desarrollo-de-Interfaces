@@ -1,5 +1,5 @@
-import { injectable } from "inversify";
-import { IPersonasRepository } from "@/app/Domain/Interfaces/Repositories/IPersonasRepository";
+import { inject, injectable } from "inversify";
+import { IPersonaRepository } from "../../Domain/Interfaces/Repositories/IPersonaRepository";
 import { Persona } from "../../Domain/Entities/Persona";
 import { BaseApi } from "../../Core/BaseApi";
 import { TYPES } from "../../Core/types";
@@ -9,7 +9,7 @@ import { TYPES } from "../../Core/types";
 type PersonaDto = Persona;
 
 @injectable()
-export class personasRepository implements IPersonasRepository {
+export class PersonaRepositoryImp implements IPersonaRepository {
     private api: BaseApi;
 
     constructor(@inject(TYPES.BaseApi) api: BaseApi) {
@@ -32,7 +32,7 @@ export class personasRepository implements IPersonasRepository {
             }
 
             // 2. Extracción de datos
-            const data: PersonaDto[] = await response. json();
+            const data: PersonaDto[] = await response.json();
 
             // Mapeo (si fuera necesario, aqui seria de DTO a Entity)
             const personas: Persona[] = data;

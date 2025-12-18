@@ -3,10 +3,10 @@ import "reflect-metadata";
 import { TYPES } from "./types";
 
 import { PersonasRepository100 } from "../Data/Repositories/personasRepository100";
-import { IPersonasRepository } from "../Domain/Interfaces/Repositories/IPersonasRepository";
+import { IPersonasRepository } from "../Domain/Interfaces/Repositories/IPersonaRepository";
 
-import { PersonasUseCases } from "../Domain/Usecases/PersonasRepositoryUseCase";
-import { IPersonasRepositoryUseCase } from "../Domain/Interfaces/Usecases/IPersonasRepositoryUseCase";
+import { PersonasUseCases } from "../Domain/Usecases/GetPersonasUseCase";
+import { IPersonasRepositoryUseCase } from "../Domain/Interfaces/Usecases/IGetPersonasUseCase.ts";
 
 import { PeopleListVM } from "../UI/ViewModels/PeopleListVM";
 
