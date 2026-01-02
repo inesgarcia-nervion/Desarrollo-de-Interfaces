@@ -1,6 +1,6 @@
 export interface PersonaUI {
     id: number;
     nombreCompleto: string;
-    departamentoSeleccionadoId?: number;
+    departamentoSeleccionadoId?: string;
     colorFila?: string;
 }

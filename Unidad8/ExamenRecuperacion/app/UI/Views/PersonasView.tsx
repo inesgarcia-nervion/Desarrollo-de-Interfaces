@@ -7,16 +7,16 @@ export const PersonasView = () => {
     const { personas, departamentos, seleccionarDepartamento, comprobar, resultado } = usePersonasVM();
 
     return (
-        <View style={{ padding: 20 }}>
+        <View style={{ flex: 1, padding: 20 }}>
         <FlatList
             data={personas}
-            keyExtractor={(item) => item.id.toString()}
+            keyExtractor={(item, index) => (item.id ? item.id.toString() : index.toString())}
             renderItem={({ item }) => (
             <View style={{ backgroundColor: item.colorFila, marginBottom: 10, padding: 10 }}>
                 <Text>{item.nombreCompleto}</Text>
                 <Picker
-                selectedValue={item.departamentoSeleccionadoId}
-                onValueChange={(value: number) => seleccionarDepartamento(item.id, value)}
+                selectedValue={item.departamentoSeleccionadoId ? parseInt(item.departamentoSeleccionadoId) : undefined}
+                onValueChange={(value: number) => seleccionarDepartamento(item.id, value.toString())}
                 >
                 <Picker.Item label="Selecciona departamento" value={undefined} />
                 {departamentos.map(d => (

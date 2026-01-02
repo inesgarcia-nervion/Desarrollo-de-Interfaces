@@ -14,15 +14,21 @@ export class PersonaMapper {
     }
 
     static toDepartamentoUI(dep: Departamento): DepartamentoUI {
+        const colores = {
+            1: "lightblue",
+            2: "lightgreen",
+            3: "lightcoral",
+            4: "lightyellow"
+        };
         return {
         id: dep.idDepartamento,
         nombre: dep.nombreDepartamento,
-        color: dep.color
+        color: colores[dep.idDepartamento as keyof typeof colores] || "white"
         };
     }
 
     static asignarColor(persona: PersonaUI, departamentos: DepartamentoUI[]): PersonaUI {
-        const dep = departamentos.find(d => d.id === persona.departamentoSeleccionadoId);
+        const dep = departamentos.find(d => d.id === parseInt(persona.departamentoSeleccionadoId || '0'));
         return {
         ...persona,
         colorFila: dep ? dep.color : "white"
