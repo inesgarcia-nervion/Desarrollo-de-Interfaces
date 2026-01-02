@@ -1,10 +1,20 @@
 import React from "react";
-import { View, Text, Button, FlatList } from "react-native";
+import { View, Text, Button, FlatList, Modal } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { usePersonasVM } from "../Viewmodels/PersonasVM";
+import { ResultadoView } from "./ResultadoView";
 
 export const PersonasView = () => {
+    const [showModal, setShowModal] = React.useState(false);
+    const [modalMessage, setModalMessage] = React.useState("");
     const { personas, departamentos, seleccionarDepartamento, comprobar, resultado } = usePersonasVM();
+
+    React.useEffect(() => {
+        if (resultado === "¡Enhorabuena, has acertado todos los departamentos!") {
+            setModalMessage(resultado);
+            setShowModal(true);
+        }
+    }, [resultado]);
 
     return (
         <View style={{ flex: 1, padding: 20 }}>
@@ -28,6 +38,10 @@ export const PersonasView = () => {
         />
         <Button title="Comprobar" onPress={comprobar} />
         {resultado ? <Text style={{ marginTop: 10 }}>{resultado}</Text> : null}
+        <Modal visible={showModal} onRequestClose={() => setShowModal(false)}>
+            <ResultadoView mensaje={modalMessage} />
+            <Button title="Cerrar" onPress={() => setShowModal(false)} />
+        </Modal>
         </View>
     );
 };
