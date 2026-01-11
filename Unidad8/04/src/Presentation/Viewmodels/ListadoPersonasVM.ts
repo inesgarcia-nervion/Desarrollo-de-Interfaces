@@ -27,6 +27,7 @@ export const useListadoPersonasVM = () => {
             setOriginal(listaValida);
             setPuedeEliminar(dtoDel.puedeEliminar);
             setPersonaSeleccionada(null);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e) {
             setPersonas([]);
             setOriginal([]);

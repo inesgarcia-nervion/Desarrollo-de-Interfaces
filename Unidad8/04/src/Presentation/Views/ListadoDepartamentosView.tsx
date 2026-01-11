@@ -11,13 +11,13 @@ export const ListadoDepartamentosView = () => {
 
     useEffect(() => {
         vm.load();
-    }, [vm.load]);
+    }, [vm, vm.load]);
 
     // Recargar datos cada vez que la pantalla recibe el foco
     useFocusEffect(
         React.useCallback(() => {
             vm.load();
-        }, [vm.load])
+        }, [vm])
     );
 
     return (

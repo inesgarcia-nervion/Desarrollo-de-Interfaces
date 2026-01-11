@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import { View, FlatList, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Image } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useListadoPersonasVM } from '../Viewmodels/ListadoPersonasVM';
-import { useRouter } from 'expo-router';
 import { ActionHeader } from '../Components/ActionHeader';
 import { FloatingAddButton } from '../Components/FloatingAddButton';
 
@@ -13,60 +12,70 @@ export const ListadoPersonasView = () => {
     // Cargar datos cuando la pantalla se monta
     useEffect(() => {
         vm.loadData();
-    }, [vm.loadData]);
+    }, [vm, vm.loadData]);
 
     // Recargar datos cada vez que la pantalla recibe el foco (volvemos de otra pantalla)
     useFocusEffect(
         React.useCallback(() => {
             vm.loadData();
-        }, [vm.loadData])
+        }, [vm])
     );
 
     return (
-        <View style={{ flex: 1 }}>
-            {/* Mostrar foto de persona seleccionada */}
+        <View style={styles.mainContainer}>
+            {/* Sección de foto */}
             {vm.personaSeleccionada?._foto && (
-                <View style={styles.fotoContainer}>
+                <View style={styles.fotoSection}>
+                    <Text style={styles.fotoLabel}>Foto Seleccionada</Text>
                     <Image 
                         source={{ uri: vm.personaSeleccionada._foto }}
                         style={styles.foto}
                     />
+                    <Text style={styles.personaNombre}>
+                        {vm.personaSeleccionada._nombre} {vm.personaSeleccionada._apellidos}
+                    </Text>
                 </View>
             )}
 
-            {/* Componente superior con Buscar, Editar y Borrar */}
-            <ActionHeader 
-                placeholder="Buscar persona..."
-                onSearch={vm.filtrar}
-                onEdit={() => {
-                    if (vm.personaSeleccionada) {
-                        router.push({
-                            pathname: "/editarPersona",
-                            params: { persona: JSON.stringify(vm.personaSeleccionada) }
-                        });
-                    }
-                }}
-                onDelete={vm.eliminarAction}
-                disabledEdit={!vm.personaSeleccionada}
-                disabledDelete={!vm.personaSeleccionada || !vm.puedeEliminar}
-            />
-
-            {vm.loading ? (
-                <ActivityIndicator size="large" style={{ marginTop: 20 }} />
-            ) : (
-                <FlatList
-                    data={vm.personas || []}
-                    keyExtractor={(item, index) => item?._id?.toString() ?? index.toString()}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity 
-                            onPress={() => vm.seleccionar(item)}
-                            style={[styles.card, vm.personaSeleccionada?._id === item._id && styles.selectedCard]}
-                        >
-                            <Text>{item._nombre} {item._apellidos}</Text>
-                        </TouchableOpacity>
-                    )}
+            {/* Sección de búsqueda y acciones */}
+            <View style={styles.searchSection}>
+                <ActionHeader 
+                    placeholder="Buscar persona..."
+                    onSearch={vm.filtrar}
+                    onEdit={() => {
+                        if (vm.personaSeleccionada) {
+                            router.push({
+                                pathname: "/editarPersona",
+                                params: { persona: JSON.stringify(vm.personaSeleccionada) }
+                            });
+                        }
+                    }}
+                    onDelete={vm.eliminarAction}
+                    disabledEdit={!vm.personaSeleccionada}
+                    disabledDelete={!vm.personaSeleccionada || !vm.puedeEliminar}
                 />
-            )}
+            </View>
+
+            {/* Sección de lista */}
+            <View style={styles.listSection}>
+                {vm.loading ? (
+                    <ActivityIndicator size="large" style={{ marginTop: 20 }} />
+                ) : (
+                    <FlatList
+                        data={vm.personas || []}
+                        keyExtractor={(item, index) => item?._id?.toString() ?? index.toString()}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity 
+                                onPress={() => vm.seleccionar(item)}
+                                style={[styles.card, vm.personaSeleccionada?._id === item._id && styles.selectedCard]}
+                            >
+                                <Text style={styles.cardText}>{item._nombre} {item._apellidos}</Text>
+                            </TouchableOpacity>
+                        )}
+                        scrollEnabled={true}
+                    />
+                )}
+            </View>
 
             <FloatingAddButton onPress={() => router.push("/editarPersona")} />
         </View>
@@ -74,21 +83,31 @@ export const ListadoPersonasView = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 10 },
-    headerButtons: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: 15 },
-    actionBtn: { backgroundColor: '#f1c40f', padding: 10, borderRadius: 5, marginLeft: 10, minWidth: 70, alignItems: 'center' },
-    deleteBtn: { backgroundColor: '#e74c3c' },
-    disabledBtn: { backgroundColor: '#bdc3c7' },
-    btnText: { fontWeight: 'bold', color: 'white' },
-    card: { backgroundColor: 'white', padding: 15, marginBottom: 10, marginHorizontal: 10, borderRadius: 8, elevation: 2 },
-    selectedCard: { borderWidth: 2, borderColor: '#3498db', backgroundColor: '#e3f2fd' },
-    cardText: { fontSize: 16 },
-    fotoContainer: { 
-        alignItems: 'center', 
-        paddingVertical: 20, 
-        backgroundColor: '#f9f9f9',
-        borderBottomWidth: 1,
-        borderColor: '#e0e0e0'
+    mainContainer: { 
+        flex: 1, 
+        backgroundColor: '#f5f5f5'
+    },
+    fotoSection: {
+        backgroundColor: 'white',
+        alignItems: 'center',
+        paddingVertical: 20,
+        paddingHorizontal: 15,
+        borderBottomWidth: 2,
+        borderColor: '#e0e0e0',
+        elevation: 3
+    },
+    fotoLabel: {
+        fontSize: 12,
+        color: '#999',
+        marginBottom: 10,
+        textTransform: 'uppercase',
+        fontWeight: 'bold'
+    },
+    personaNombre: {
+        fontSize: 16,
+        fontWeight: '600',
+        marginTop: 10,
+        color: '#333'
     },
     foto: { 
         width: 120, 
@@ -97,17 +116,36 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: '#3498db'
     },
-    fab: {
-        position: 'absolute',
-        right: 20,
-        bottom: 20,
-        backgroundColor: '#2ecc71',
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        justifyContent: 'center',
-        alignItems: 'center',
-        elevation: 5
+    searchSection: {
+        backgroundColor: 'white',
+        paddingHorizontal: 10,
+        paddingVertical: 15,
+        borderBottomWidth: 1,
+        borderColor: '#e0e0e0'
     },
-    fabText: { color: 'white', fontSize: 30, fontWeight: 'bold' }
+    listSection: {
+        flex: 1,
+        paddingTop: 10
+    },
+    card: { 
+        backgroundColor: 'white', 
+        padding: 15, 
+        marginBottom: 8,
+        marginHorizontal: 10, 
+        borderRadius: 8, 
+        elevation: 2,
+        borderLeftWidth: 4,
+        borderLeftColor: '#ddd'
+    },
+    selectedCard: { 
+        borderLeftColor: '#3498db',
+        backgroundColor: '#e3f2fd',
+        borderWidth: 1,
+        borderColor: '#3498db'
+    },
+    cardText: { 
+        fontSize: 15,
+        fontWeight: '500',
+        color: '#333'
+    }
 });
