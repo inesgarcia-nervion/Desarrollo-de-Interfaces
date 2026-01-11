@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { container } from "../../Core/container";
 import { TYPES } from "../../Core/types";
 import { Departamento } from "../../Domain/Entities/Departamento";
@@ -8,6 +8,11 @@ export const useEditarInsertarDepartamentosVM = (deptoEdit?: Departamento) => {
     const ucRef = useRef(container.get<IDepartamentoUseCase>(TYPES.IDepartamentoUseCase));
     const uc = ucRef.current;
     const [nombre, setNombre] = useState(deptoEdit?._nombre ?? "");
+
+    // Actualizar el estado cuando cambia deptoEdit
+    useEffect(() => {
+        setNombre(deptoEdit?._nombre ?? "");
+    }, [deptoEdit]);
 
     const guardar = useCallback(async () => {
         const d = new Departamento(deptoEdit?._id ?? 0, nombre);

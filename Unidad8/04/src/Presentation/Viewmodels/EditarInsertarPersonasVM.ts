@@ -19,11 +19,24 @@ export const useEditarInsertarPersonasVM = (pEdit?: Persona) => {
     const [idDepto, setIdDepto] = useState(pEdit?._idDepartamento ?? 0);
     const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
 
+    // Actualizar los estados cuando cambia pEdit (cuando selecciona otra persona)
+    useEffect(() => {
+        setNombre(pEdit?._nombre ?? "");
+        setApellidos(pEdit?._apellidos ?? "");
+        setEdad(pEdit?._edad?.toString() ?? "");
+        setFoto(pEdit?._foto ?? "");
+        setIdDepto(pEdit?._idDepartamento ?? 0);
+    }, [pEdit]);
+
     useEffect(() => {
         dUC.GetListadoDepartamentos().then(setDepartamentos);
     }, [dUC]);
 
     const guardar = useCallback(async () => {
+        console.log("Guardando persona con datos:", {
+            nombre, apellidos, edad, foto, idDepto,
+            pEdit: pEdit?._id
+        });
         const p = new Persona(
             pEdit?._id ?? 0, 
             nombre, 
@@ -35,8 +48,19 @@ export const useEditarInsertarPersonasVM = (pEdit?: Persona) => {
             idDepto, 
             foto
         );
-        if (pEdit?._id) await pUC.EditarPersona(p);
-        else await pUC.InsertarPersona(p);
+        console.log("Objeto Persona creado:", p);
+        try {
+            if (pEdit?._id) {
+                console.log("Editando persona...");
+                await pUC.EditarPersona(p);
+            } else {
+                console.log("Insertando persona...");
+                await pUC.InsertarPersona(p);
+            }
+        } catch (e) {
+            console.error("Error al guardar:", e);
+            throw e;
+        }
     }, [pEdit, nombre, apellidos, edad, idDepto, foto, pUC]);
 
     return { nombre, setNombre, apellidos, setApellidos, edad, setEdad, idDepto, setIdDepto, foto, setFoto, departamentos, guardar };

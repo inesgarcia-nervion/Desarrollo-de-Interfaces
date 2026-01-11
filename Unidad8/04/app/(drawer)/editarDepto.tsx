@@ -4,5 +4,5 @@ import { EditarInsertarDepartamentosView } from "../../src/Presentation/Views/Ed
 export default function Page() {
     const params = useLocalSearchParams();
     const depto = params.depto ? JSON.parse(params.depto as string) : undefined;
-    return <EditarInsertarDepartamentosView route={{ params: { depto } }} />;
+    return <EditarInsertarDepartamentosView deptoInicial={depto} />;
 }

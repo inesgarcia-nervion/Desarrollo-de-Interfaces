@@ -6,17 +6,28 @@ import type { IPersonaRepository } from "../../Domain/Interfaces/Repositories/IP
 
 // Función para mapear la entidad Persona al formato de la API
 function mapPersonaToApi(p: Persona) {
-    return {
-        id: p._id,
+    // Si no hay fecha de nacimiento, usar la fecha actual
+    const fechaNacimiento = p._fechaNacimiento || new Date().toISOString().split('T')[0];
+    
+    const payload: any = {
         nombre: p._nombre,
         apellido: p._apellidos,
         edad: p._edad,
-        fechaNacimiento: p._fechaNacimiento,
-        direccion: p._direccion,
-        telefono: p._telefono,
-        idDepartamento: p._idDepartamento,
-        foto: p._foto
+        fechaNacimiento: fechaNacimiento,
+        idDepartamento: parseInt(String(p._idDepartamento))
     };
+    
+    // Solo añadir campos opcionales si tienen valor
+    if (p._direccion) payload.direccion = p._direccion;
+    if (p._telefono) payload.telefono = p._telefono;
+    if (p._foto) payload.foto = p._foto;
+    
+    // Solo añadir id si no es una nueva persona
+    if (p._id !== 0) {
+        payload.id = p._id;
+    }
+    
+    return payload;
 }
 
 @injectable()

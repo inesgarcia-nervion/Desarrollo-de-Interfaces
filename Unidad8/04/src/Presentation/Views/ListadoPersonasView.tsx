@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, FlatList, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, FlatList, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Image } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useListadoPersonasVM } from '../Viewmodels/ListadoPersonasVM';
 import { useRouter } from 'expo-router';
@@ -24,6 +24,16 @@ export const ListadoPersonasView = () => {
 
     return (
         <View style={{ flex: 1 }}>
+            {/* Mostrar foto de persona seleccionada */}
+            {vm.personaSeleccionada?._foto && (
+                <View style={styles.fotoContainer}>
+                    <Image 
+                        source={{ uri: vm.personaSeleccionada._foto }}
+                        style={styles.foto}
+                    />
+                </View>
+            )}
+
             {/* Componente superior con Buscar, Editar y Borrar */}
             <ActionHeader 
                 placeholder="Buscar persona..."
@@ -70,9 +80,23 @@ const styles = StyleSheet.create({
     deleteBtn: { backgroundColor: '#e74c3c' },
     disabledBtn: { backgroundColor: '#bdc3c7' },
     btnText: { fontWeight: 'bold', color: 'white' },
-    card: { backgroundColor: 'white', padding: 20, marginBottom: 10, borderRadius: 10, elevation: 3 },
-    selectedCard: { borderWidth: 2, borderColor: '#3498db' },
+    card: { backgroundColor: 'white', padding: 15, marginBottom: 10, marginHorizontal: 10, borderRadius: 8, elevation: 2 },
+    selectedCard: { borderWidth: 2, borderColor: '#3498db', backgroundColor: '#e3f2fd' },
     cardText: { fontSize: 16 },
+    fotoContainer: { 
+        alignItems: 'center', 
+        paddingVertical: 20, 
+        backgroundColor: '#f9f9f9',
+        borderBottomWidth: 1,
+        borderColor: '#e0e0e0'
+    },
+    foto: { 
+        width: 120, 
+        height: 120, 
+        borderRadius: 60,
+        borderWidth: 2,
+        borderColor: '#3498db'
+    },
     fab: {
         position: 'absolute',
         right: 20,
