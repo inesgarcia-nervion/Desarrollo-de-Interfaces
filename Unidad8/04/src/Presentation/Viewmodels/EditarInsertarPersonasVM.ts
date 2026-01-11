@@ -6,6 +6,13 @@ import { Departamento } from "../../Domain/Entities/Departamento";
 import type { IPersonaUseCase } from "../../Domain/Interfaces/Usecases/IPersonaUseCase";
 import type { IDepartamentoUseCase } from "../../Domain/Interfaces/Usecases/IDepartamentoUseCase";
 
+// Función para calcular fecha de nacimiento a partir de edad
+function calcularFechaNacimientoDesdeEdad(edad: number): string {
+    const hoy = new Date();
+    const fechaNac = new Date(hoy.getFullYear() - edad, hoy.getMonth(), hoy.getDate());
+    return fechaNac.toISOString().split('T')[0];
+}
+
 export const useEditarInsertarPersonasVM = (pEdit?: Persona) => {
     const pUCRef = useRef(container.get<IPersonaUseCase>(TYPES.IPersonaUseCase));
     const dUCRef = useRef(container.get<IDepartamentoUseCase>(TYPES.IDepartamentoUseCase));
@@ -33,6 +40,12 @@ export const useEditarInsertarPersonasVM = (pEdit?: Persona) => {
     }, [dUC]);
 
     const guardar = useCallback(async () => {
+        const edadNum = parseInt(edad) || 0;
+        // Si se cambió la edad, calcular la nueva fecha de nacimiento
+        const nuevaFechaNacimiento = edad !== pEdit?._edad?.toString() 
+            ? calcularFechaNacimientoDesdeEdad(edadNum)
+            : (pEdit?._fechaNacimiento ?? "");
+        
         console.log("Guardando persona con datos:", {
             nombre, apellidos, edad, foto, idDepto,
             pEdit: pEdit?._id
@@ -41,8 +54,8 @@ export const useEditarInsertarPersonasVM = (pEdit?: Persona) => {
             pEdit?._id ?? 0, 
             nombre, 
             apellidos, 
-            parseInt(edad) || 0, 
-            pEdit?._fechaNacimiento ?? "", 
+            edadNum, 
+            nuevaFechaNacimiento, 
             pEdit?._direccion ?? "", 
             pEdit?._telefono ?? "", 
             idDepto, 

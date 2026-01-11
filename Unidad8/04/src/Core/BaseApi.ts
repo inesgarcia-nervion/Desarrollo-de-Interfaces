@@ -37,6 +37,13 @@ export class BaseApi {
             body: JSON.stringify(body) 
         });
         console.log("Response status:", response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("POST error response:", errorText);
+            throw new Error(`POST error: ${response.status} ${errorText}`);
+        }
+        
         const text = await response.text();
         console.log("Response text:", text);
         if (!text) return null as T;
@@ -44,20 +51,45 @@ export class BaseApi {
     }
 
     public async put<T>(endpoint: string, body: any): Promise<T> {
-        const response = await fetch(this.getUrl(endpoint), { 
+        const url = this.getUrl(endpoint);
+        console.log("PUT request to:", url);
+        console.log("PUT body:", body);
+        const response = await fetch(url, { 
             method: "PUT", 
             headers: this.getDefaultHeaders(), 
             body: JSON.stringify(body) 
         });
+        console.log("Response status:", response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("PUT error response:", errorText);
+            throw new Error(`PUT error: ${response.status} ${errorText}`);
+        }
+        
         const text = await response.text();
+        console.log("Response text:", text);
         if (!text) return null as T;
         return JSON.parse(text);
     }
 
     public async delete<T>(endpoint: string): Promise<T> {
-        const response = await fetch(this.getUrl(endpoint), { method: "DELETE", headers: this.getDefaultHeaders() });
-        // Si la respuesta está vacía (204 No Content), no intentar parsear JSON
+        const url = this.getUrl(endpoint);
+        console.log("DELETE request to:", url);
+        const response = await fetch(url, { 
+            method: "DELETE", 
+            headers: this.getDefaultHeaders() 
+        });
+        console.log("Response status:", response.status);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("DELETE error response:", errorText);
+            throw new Error(`DELETE error: ${response.status} ${errorText}`);
+        }
+        
         const text = await response.text();
+        console.log("Response text:", text);
         if (!text) return null as T;
         return JSON.parse(text);
     }

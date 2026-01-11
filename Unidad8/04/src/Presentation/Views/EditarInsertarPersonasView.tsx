@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, Image } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, ScrollView, Image, Alert } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { useRouter } from "expo-router";
 import { useEditarInsertarPersonasVM } from '../Viewmodels/EditarInsertarPersonasVM';
@@ -12,10 +12,19 @@ interface Props {
 export const EditarInsertarPersonasView = ({ personaInicial }: Props) => {
     const router = useRouter();
     const vm = useEditarInsertarPersonasVM(personaInicial);
+    const [saving, setSaving] = useState(false);
 
     const onSave = async () => { 
-        await vm.guardar(); 
-        router.push("../personas");
+        try {
+            setSaving(true);
+            await vm.guardar();
+            Alert.alert("Éxito", "Persona guardada correctamente");
+            router.push("../personas");
+        } catch (error: any) {
+            Alert.alert("Error", error.message || "No se pudo guardar la persona");
+        } finally {
+            setSaving(false);
+        }
     };
 
     return (
@@ -57,7 +66,7 @@ export const EditarInsertarPersonasView = ({ personaInicial }: Props) => {
             </View>
 
             <View style={{ marginVertical: 30 }}>
-                <Button title="Guardar" onPress={onSave} color="#2196F3" />
+                <Button title={saving ? "Guardando..." : "Guardar"} onPress={onSave} color="#2196F3" disabled={saving} />
             </View>
         </ScrollView>
     );

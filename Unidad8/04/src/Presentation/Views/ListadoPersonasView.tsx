@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { View, FlatList, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Image } from 'react-native';
-import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useEffect, useRef } from 'react';
+import { View, FlatList, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Image, RefreshControl } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useListadoPersonasVM } from '../Viewmodels/ListadoPersonasVM';
 import { ActionHeader } from '../Components/ActionHeader';
 import { FloatingAddButton } from '../Components/FloatingAddButton';
@@ -8,18 +8,23 @@ import { FloatingAddButton } from '../Components/FloatingAddButton';
 export const ListadoPersonasView = () => {
     const vm = useListadoPersonasVM();
     const router = useRouter();
+    const isFirstLoad = useRef(true);
+    const [refreshing, setRefreshing] = React.useState(false);
 
     // Cargar datos cuando la pantalla se monta
     useEffect(() => {
-        vm.loadData();
-    }, [vm, vm.loadData]);
-
-    // Recargar datos cada vez que la pantalla recibe el foco (volvemos de otra pantalla)
-    useFocusEffect(
-        React.useCallback(() => {
+        if (isFirstLoad.current) {
             vm.loadData();
-        }, [vm])
-    );
+            isFirstLoad.current = false;
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    const onRefresh = React.useCallback(async () => {
+        setRefreshing(true);
+        await vm.loadData();
+        setRefreshing(false);
+    }, [vm]);
 
     return (
         <View style={styles.mainContainer}>
@@ -73,6 +78,9 @@ export const ListadoPersonasView = () => {
                             </TouchableOpacity>
                         )}
                         scrollEnabled={true}
+                        refreshControl={
+                            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+                        }
                     />
                 )}
             </View>

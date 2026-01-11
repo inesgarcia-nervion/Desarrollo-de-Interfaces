@@ -7,6 +7,7 @@ import { Persona } from "../../Domain/Entities/Persona";
 export const useListadoPersonasVM = () => {
     const pUCRef = useRef(container.get<any>(TYPES.IPersonaUseCase));
     const pUC = pUCRef.current;
+    const isLoadingRef = useRef(false);
 
     const [personas, setPersonas] = useState<Persona[]>([]);
     const [original, setOriginal] = useState<Persona[]>([]);
@@ -15,6 +16,10 @@ export const useListadoPersonasVM = () => {
     const [loading, setLoading] = useState(false);
 
     const loadData = useCallback(async () => {
+        // Prevenir múltiples llamadas simultáneas
+        if (isLoadingRef.current) return;
+        isLoadingRef.current = true;
+        
         setLoading(true);
         try {
             const dto = await pUC.getPersonaMayorDeEdadDTO();
@@ -33,6 +38,7 @@ export const useListadoPersonasVM = () => {
             setOriginal([]);
         } finally {
             setLoading(false);
+            isLoadingRef.current = false;
         }
     }, [pUC]);
 
