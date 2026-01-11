@@ -15,7 +15,7 @@ export const EditarInsertarPersonasView = ({ personaInicial }: Props) => {
 
     const onSave = async () => { 
         await vm.guardar(); 
-        router.back(); 
+        router.replace("personas");
     };
 
     return (

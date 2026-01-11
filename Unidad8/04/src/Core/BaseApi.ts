@@ -33,7 +33,9 @@ export class BaseApi {
             headers: this.getDefaultHeaders(), 
             body: JSON.stringify(body) 
         });
-        return response.json();
+        const text = await response.text();
+        if (!text) return null as T;
+        return JSON.parse(text);
     }
 
     public async put<T>(endpoint: string, body: any): Promise<T> {
@@ -42,7 +44,9 @@ export class BaseApi {
             headers: this.getDefaultHeaders(), 
             body: JSON.stringify(body) 
         });
-        return response.json();
+        const text = await response.text();
+        if (!text) return null as T;
+        return JSON.parse(text);
     }
 
     public async delete<T>(endpoint: string): Promise<T | null> {

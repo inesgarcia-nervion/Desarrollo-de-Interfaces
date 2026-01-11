@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, FlatList, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useListadoDepartamentosVM } from '../Viewmodels/ListadoDepartamentosVM';
 import { ActionHeader } from '../Components/ActionHeader';
 import { FloatingAddButton } from '../Components/FloatingAddButton';
@@ -12,6 +12,13 @@ export const ListadoDepartamentosView = () => {
     useEffect(() => {
         vm.load();
     }, [vm.load]);
+
+    // Recargar datos cada vez que la pantalla recibe el foco
+    useFocusEffect(
+        React.useCallback(() => {
+            vm.load();
+        }, [vm.load])
+    );
 
     return (
         <View style={styles.container}>

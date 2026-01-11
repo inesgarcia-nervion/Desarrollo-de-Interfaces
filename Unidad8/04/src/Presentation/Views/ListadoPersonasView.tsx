@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { View, FlatList, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import { useListadoPersonasVM } from '../Viewmodels/ListadoPersonasVM';
 import { useRouter } from 'expo-router';
 import { ActionHeader } from '../Components/ActionHeader';
@@ -9,9 +10,17 @@ export const ListadoPersonasView = () => {
     const vm = useListadoPersonasVM();
     const router = useRouter();
 
+    // Cargar datos cuando la pantalla se monta
     useEffect(() => {
         vm.loadData();
     }, [vm.loadData]);
+
+    // Recargar datos cada vez que la pantalla recibe el foco (volvemos de otra pantalla)
+    useFocusEffect(
+        React.useCallback(() => {
+            vm.loadData();
+        }, [vm.loadData])
+    );
 
     return (
         <View style={{ flex: 1 }}>
