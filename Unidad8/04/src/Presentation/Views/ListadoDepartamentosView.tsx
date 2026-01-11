@@ -1,31 +1,35 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
 import { View, FlatList, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { ListadoDepartamentosVM } from '../Viewmodels/ListadoDepartamentosVM';
+import { useRouter } from "expo-router";
+import { useListadoDepartamentosVM } from '../Viewmodels/ListadoDepartamentosVM';
 import { ActionHeader } from '../Components/ActionHeader';
 import { FloatingAddButton } from '../Components/FloatingAddButton';
 
-export const ListadoDepartamentosView = ({ navigation }: any) => {
-    const vm = ListadoDepartamentosVM();
+export const ListadoDepartamentosView = () => {
+    const vm = useListadoDepartamentosVM();
+    const router = useRouter();
 
-    React.useEffect(() => {
-        const unsubscribe = navigation.addListener('focus', vm.load);
-        return unsubscribe;
-    }, [navigation, vm.load]);
+    useEffect(() => {
+        vm.load();
+    }, [vm.load]);
 
     return (
         <View style={styles.container}>
             <ActionHeader 
                 placeholder="Buscar departamento..."
                 onSearch={vm.filtrar}
-                onEdit={() => navigation.navigate('EditarInsertarDepartamentos', { depto: vm.deptoSeleccionado })}
+                onEdit={() => router.push({
+                    pathname: "/editarDepto",
+                    params: { depto: JSON.stringify(vm.deptoSeleccionado) }
+                })}
                 onDelete={vm.eliminarAction}
                 disabledEdit={!vm.deptoSeleccionado}
                 disabledDelete={!vm.deptoSeleccionado}
             />
 
             <FlatList
-                data={vm.deptos}
-                keyExtractor={(item) => item._id.toString()}
+                data={vm.deptos || []}
+                keyExtractor={(item, index) => item?._id?.toString() ?? index.toString()}
                 renderItem={({ item }) => {
                     const isSelected = vm.deptoSeleccionado?._id === item._id;
                     return (
@@ -39,7 +43,7 @@ export const ListadoDepartamentosView = ({ navigation }: any) => {
                 }}
             />
 
-            <FloatingAddButton onPress={() => navigation.navigate('EditarInsertarDepartamentos')} />
+            <FloatingAddButton onPress={() => router.push("/editarDepto")} />
         </View>
     );
 };

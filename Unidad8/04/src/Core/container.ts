@@ -7,6 +7,7 @@ import { DepartamentoRepository } from "../Data/Repositories/DepartamentoReposit
 import { PersonaUseCase } from "../Domain/Usecases/PersonaUseCase";
 import { DepartamentoUseCase } from "../Domain/Usecases/DepartamentoUseCase";
 
+console.log("Inicializando container...");
 const container = new Container();
 
 container.bind<BaseApi>(TYPES.BaseApi).to(BaseApi).inSingletonScope();
@@ -14,5 +15,6 @@ container.bind<any>(TYPES.IPersonaRepository).to(PersonaRepository).inSingletonS
 container.bind<any>(TYPES.IDepartamentoRepository).to(DepartamentoRepository).inSingletonScope();
 container.bind<any>(TYPES.IPersonaUseCase).to(PersonaUseCase).inSingletonScope();
 container.bind<any>(TYPES.IDepartamentoUseCase).to(DepartamentoUseCase).inSingletonScope();
+console.log("Container inicializado correctamente");
 
 export { container };

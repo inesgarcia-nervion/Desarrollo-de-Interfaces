@@ -13,17 +13,35 @@ export class BaseApi {
     }
 
     public async get<T>(endpoint: string): Promise<T> {
-        const response = await fetch(this.getUrl(endpoint), { method: "GET", headers: this.getDefaultHeaders() });
-        return response.json();
+        const url = this.getUrl(endpoint);
+        console.log("GET request to:", url);
+        try {
+            const response = await fetch(url, { method: "GET", headers: this.getDefaultHeaders() });
+            console.log("Response status:", response.status);
+            const data = await response.json();
+            console.log("Response data:", data);
+            return data;
+        } catch (error) {
+            console.error("GET error:", error);
+            throw error;
+        }
     }
 
     public async post<T>(endpoint: string, body: any): Promise<T> {
-        const response = await fetch(this.getUrl(endpoint), { method: "POST", headers: this.getDefaultHeaders(), body: JSON.stringify(body) });
+        const response = await fetch(this.getUrl(endpoint), { 
+            method: "POST", 
+            headers: this.getDefaultHeaders(), 
+            body: JSON.stringify(body) 
+        });
         return response.json();
     }
 
     public async put<T>(endpoint: string, body: any): Promise<T> {
-        const response = await fetch(this.getUrl(endpoint), { method: "PUT", headers: this.getDefaultHeaders(), body: JSON.stringify(body) });
+        const response = await fetch(this.getUrl(endpoint), { 
+            method: "PUT", 
+            headers: this.getDefaultHeaders(), 
+            body: JSON.stringify(body) 
+        });
         return response.json();
     }
 

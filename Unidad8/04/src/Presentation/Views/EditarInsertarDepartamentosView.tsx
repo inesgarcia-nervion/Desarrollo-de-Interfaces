@@ -1,11 +1,13 @@
 import React from 'react';
 import { View, Text, TextInput, Button } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useEditarInsertarDepartamentosVM } from '../Viewmodels/EditarInsertarDepartamentosVM';
 
-export const EditarInsertarDepartamentosView = ({ route, navigation }: any) => {
-    const vm = useEditarInsertarDepartamentosVM(route.params?.depto);
+export const EditarInsertarDepartamentosView = ({ route }: any) => {
+    const router = useRouter();
+    const vm = useEditarInsertarDepartamentosVM(route?.params?.depto);
 
-    const onSave = async () => { await vm.guardar(); navigation.goBack(); };
+    const onSave = async () => { await vm.guardar(); router.back(); };
 
     return (
         <View style={{ padding: 20 }}>
