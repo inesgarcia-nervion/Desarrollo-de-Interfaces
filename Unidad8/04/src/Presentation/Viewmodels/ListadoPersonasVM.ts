@@ -15,23 +15,19 @@ export const useListadoPersonasVM = () => {
     const [loading, setLoading] = useState(false);
 
     const loadData = useCallback(async () => {
-        console.log("loadData llamado");
         setLoading(true);
         try {
             const dto = await pUC.getPersonaMayorDeEdadDTO();
-            console.log("DTO recibido:", dto);
             const dtoDel = await pUC.getEliminarPersonaDTO();
             
             // Garantizamos que siempre sea un array
             const listaValida = Array.isArray(dto.ListadoPersona) ? dto.ListadoPersona : [];
-            console.log("Lista válida:", listaValida);
             
             setPersonas(listaValida);
             setOriginal(listaValida);
             setPuedeEliminar(dtoDel.puedeEliminar);
             setPersonaSeleccionada(null);
         } catch (e) {
-            console.error("Error en loadData:", e);
             setPersonas([]);
             setOriginal([]);
         } finally {

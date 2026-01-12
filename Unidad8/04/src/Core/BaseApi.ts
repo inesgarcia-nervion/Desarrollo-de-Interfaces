@@ -45,8 +45,11 @@ export class BaseApi {
         return response.json();
     }
 
-    public async delete<T>(endpoint: string): Promise<T> {
+    public async delete<T>(endpoint: string): Promise<T | null> {
         const response = await fetch(this.getUrl(endpoint), { method: "DELETE", headers: this.getDefaultHeaders() });
-        return response.json();
+        // Si la respuesta está vacía (204 No Content), no intentar parsear JSON
+        const text = await response.text();
+        if (!text) return null as T;
+        return JSON.parse(text);
     }
 }
