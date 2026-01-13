@@ -1,12 +1,15 @@
+"use client";
 import React, { useEffect } from "react";
 import { EditarInsertarDepartamentosVM } from "../Viewmodels/EditarInsertarDepartamentosVM";
-import { AddDepartamentoUseCase } from "../../../Domain/Usecases/Departamentos/AddDepartamentoUseCase";
-import { UpdateDepartamentoUseCase } from "../../../Domain/Usecases/Departamentos/UpdateDepartamentoUseCase";
-import { useRouter } from "next/navigation";
+import { AddDepartamentoUseCase } from "../../Domain/Usecases/Departamentos/AddDepartamentoUseCase";
+import { UpdateDepartamentoUseCase } from "../../Domain/Usecases/Departamentos/UpdateDepartamentoUseCase";
+import { DepartamentoRepository } from "../../Data/Repositories/DepartamentoRepository";
+import { useRouter } from "expo-router";
 
 export default function EditarInsertarDepartamentosView({ departamentoId }: { departamentoId?: string }) {
   const router = useRouter();
-  const vm = new EditarInsertarDepartamentosVM(new AddDepartamentoUseCase(), new UpdateDepartamentoUseCase());
+  const departamentoRepo = new DepartamentoRepository();
+  const vm = new EditarInsertarDepartamentosVM(new AddDepartamentoUseCase(departamentoRepo), new UpdateDepartamentoUseCase(departamentoRepo));
 
   useEffect(() => {
     if (departamentoId) {
@@ -20,7 +23,7 @@ export default function EditarInsertarDepartamentosView({ departamentoId }: { de
       onSubmit={async e => {
         e.preventDefault();
         await vm.guardar();
-        router.push("/drawer/departamento");
+        router.push("/departamento");
       }}
     >
       <input

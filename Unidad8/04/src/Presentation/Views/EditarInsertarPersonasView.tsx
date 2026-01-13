@@ -1,13 +1,22 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import { EditarInsertarPersonasVM } from "../Viewmodels/EditarInsertarPersonasVM";
-import { AddPersonaUseCase } from "../../../Domain/Usecases/Personas/AddPersonaUseCase";
-import { UpdatePersonaUseCase } from "../../../Domain/Usecases/Personas/UpdatePersonaUseCase";
-import { GetDepartamentosUseCase } from "../../../Domain/Usecases/Departamentos/GetDepartamentosUseCase";
-import { useRouter } from "next/navigation";
+import { AddPersonaUseCase } from "../../Domain/Usecases/Personas/AddPersonaUseCase";
+import { UpdatePersonaUseCase } from "../../Domain/Usecases/Personas/UpdatePersonaUseCase";
+import { GetDepartamentosUseCase } from "../../Domain/Usecases/Departamentos/GetDepartamentosUseCase";
+import { PersonaRepository } from "../../Data/Repositories/PersonaRepository";
+import { DepartamentoRepository } from "../../Data/Repositories/DepartamentoRepository";
+import { useRouter } from "expo-router";
 
 export default function EditarInsertarPersonasView({ personaId }: { personaId?: string }) {
   const router = useRouter();
-  const vm = new EditarInsertarPersonasVM(new AddPersonaUseCase(), new UpdatePersonaUseCase(), new GetDepartamentosUseCase());
+  const personaRepo = new PersonaRepository();
+  const departamentoRepo = new DepartamentoRepository();
+  const vm = new EditarInsertarPersonasVM(
+    new AddPersonaUseCase(personaRepo),
+    new UpdatePersonaUseCase(personaRepo),
+    new GetDepartamentosUseCase(departamentoRepo)
+  );
 
   useEffect(() => {
     if (personaId) {
@@ -21,7 +30,7 @@ export default function EditarInsertarPersonasView({ personaId }: { personaId?: 
       onSubmit={async e => {
         e.preventDefault();
         await vm.guardar();
-        router.push("/drawer/personas");
+        router.push("/");
       }}
     >
       <input placeholder="Nombre" value={vm.persona._nombre || ""} onChange={e => (vm.persona._nombre = e.target.value)} />

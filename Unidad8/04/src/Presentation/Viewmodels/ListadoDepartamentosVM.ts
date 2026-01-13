@@ -1,4 +1,4 @@
-import { makeAutoObservable } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import { GetDepartamentosUseCase } from "../../Domain/Usecases/Departamentos/GetDepartamentosUseCase";
 import { DeleteDepartamentoUseCase } from "../../Domain/Usecases/Departamentos/DeleteDepartamentoUseCase";
 import { DepartamentoDTO } from "../../Domain/DTO/DepartamentoDTO";
@@ -15,7 +15,15 @@ export class ListadoDepartamentosVM {
   }
 
   async cargarDepartamentos() {
-    this.departamentos = await this.getDepartamentos.execute();
+    const raw = await this.getDepartamentos.execute();
+    // map Domain Departamento -> DepartamentoDTO expected by the UI
+    const mapped = (raw || []).map((d: any) => ({
+      _id: d.id ?? d._id ?? 0,
+      _nombre: d.nombre ?? d._nombre ?? "",
+    }));
+    runInAction(() => {
+      this.departamentos = mapped;
+    });
   }
 
   seleccionarDepartamento(depto: DepartamentoDTO) {
