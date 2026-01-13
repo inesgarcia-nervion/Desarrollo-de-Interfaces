@@ -31,7 +31,7 @@ export default function DrawerLayout() {
         visibility: 'visible',
         pointerEvents: 'auto' as const,
         transition: 'transform 200ms ease-in-out, opacity 200ms ease-in-out',
-        zIndex: 1000,
+        zIndex: 3000,
       }
     : {
         position: 'fixed',
@@ -47,7 +47,7 @@ export default function DrawerLayout() {
         visibility: 'hidden',
         pointerEvents: 'none' as const,
         transition: 'transform 200ms ease-in-out, opacity 200ms ease-in-out',
-        zIndex: 1000,
+        zIndex: 3000,
       };
 
   return (
@@ -69,6 +69,7 @@ export default function DrawerLayout() {
           flex: 1,
           transform: isOpen ? `translateX(${drawerWidth}px)` : 'translateX(0px)',
           transition: 'transform 200ms ease-in-out',
+          zIndex: 100,
         }}
       >
         {/* Menu toggle icon (hamburger) - visible when drawer is closed */}
@@ -87,7 +88,7 @@ export default function DrawerLayout() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              zIndex: 1100,
+              zIndex: 3100,
               border: 'none',
               cursor: 'pointer',
               boxShadow: '0 2px 6px rgba(0,0,0,0.15)',

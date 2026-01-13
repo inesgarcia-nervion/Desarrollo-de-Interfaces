@@ -15,6 +15,12 @@ const vm = new ListadoPersonasVM(new GetPersonasUseCase(repo), new DeletePersona
 const ListadoPersonasView: React.FC = observer(() => {
   const router = useRouter();
 
+  const _smallFallback = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48'><rect width='100%' height='100%' fill='%23dddddd'/></svg>";
+  const safeFoto = (f?: string | null) => {
+    const s = (f ?? '').toString();
+    return (s.startsWith('http') || s.startsWith('https') || s.startsWith('data:')) ? s : _smallFallback;
+  };
+
   useEffect(() => {
     console.log('[view] ListadoPersonasView mounted, loading personas');
     vm.cargarPersonas();
@@ -37,11 +43,24 @@ const ListadoPersonasView: React.FC = observer(() => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+      <ActionHeader title="Listado de Personas" />
+
       {vm.personaSeleccionada ? (
-        <ActionHeader onEdit={onEdit} onDelete={onDelete} />
-      ) : (
-        <ActionHeader title="Listado de Personas" />
-      )}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: '#f8fafc', borderBottom: '1px solid #e6eef8' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <img src={safeFoto(vm.personaSeleccionada._foto as any)} alt="sel" style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover' }} />
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 16 }}>{vm.personaSeleccionada._nombre} {vm.personaSeleccionada._apellidos}</div>
+              <div style={{ fontSize: 13, color: '#6b7280' }}>{vm.personaSeleccionada.nombreDepartamento || '—'}</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={onEdit} style={{ background: '#059669', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 8, cursor: 'pointer' }}>Editar</button>
+            <button onClick={onDelete} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 8, cursor: 'pointer' }}>Borrar</button>
+          </div>
+        </div>
+      ) : null}
 
       <div style={{ padding: 12, flex: '1 1 auto', overflowY: 'auto', boxSizing: 'border-box' }}>
         <ul style={{ display: 'flex', flexDirection: 'column', gap: 12, listStyle: 'none', padding: 0, margin: 0 }}>
@@ -88,7 +107,11 @@ const ListadoPersonasView: React.FC = observer(() => {
         </ul>
       </div>
 
-      <FloatingAddButton onPress={() => router.push('/editarPersona' as any)} />
+      <FloatingAddButton onPress={() => {
+        // clear any leftover editing id and open create route
+        try { localStorage.removeItem('editingPersonaId'); } catch (e) { /* noop */ }
+        router.push('/editarPersona');
+      }} />
     </div>
   );
 });

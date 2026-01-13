@@ -68,7 +68,7 @@ export const ActionHeader = ({
 };
 
 const styles = StyleSheet.create({
-    header: { padding: 15, backgroundColor: 'white', elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 2 },
+    header: { padding: 15, backgroundColor: 'white', elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 2, position: 'relative', zIndex: 100 },
     searchBar: { borderBottomWidth: 1, borderColor: '#ccc', marginBottom: 15, padding: 5, fontSize: 16 },
     buttonRow: { flexDirection: 'row', justifyContent: 'space-between' },
     btn: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 8, width: '48%', alignItems: 'center' },

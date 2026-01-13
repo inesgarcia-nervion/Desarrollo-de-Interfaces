@@ -22,6 +22,9 @@ export class BaseApi {
         const url = this.getUrl(endpoint);
         const response = await fetch(url, { method: "POST", headers: this.getDefaultHeaders(), body: JSON.stringify(body) });
         const text = await response.text();
+        if (!response.ok) {
+            throw new Error(JSON.stringify({ status: response.status, body: text }));
+        }
         return text ? JSON.parse(text) : null as T;
     }
 
@@ -29,6 +32,9 @@ export class BaseApi {
         const url = this.getUrl(endpoint);
         const response = await fetch(url, { method: "PUT", headers: this.getDefaultHeaders(), body: JSON.stringify(body) });
         const text = await response.text();
+        if (!response.ok) {
+            throw new Error(JSON.stringify({ status: response.status, body: text }));
+        }
         return text ? JSON.parse(text) : null as T;
     }
 
