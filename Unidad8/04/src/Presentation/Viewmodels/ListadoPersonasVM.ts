@@ -1,75 +1,29 @@
-import { useState, useCallback, useRef } from "react";
-import { Alert } from "react-native";
-import { container } from "../../Core/container";
-import { TYPES } from "../../Core/types";
-import { Persona } from "../../Domain/Entities/Persona";
+import { makeAutoObservable } from "mobx";
+import { GetPersonasUseCase } from "../../Domain/Usecases/Personas/GetPersonasUseCase";
+import { DeletePersonaUseCase } from "../../Domain/Usecases/Personas/DeletePersonaUseCase";
+import { PersonaDTO } from "../../Domain/DTO/PersonaDTO";
 
-export const useListadoPersonasVM = () => {
-    const pUCRef = useRef(container.get<any>(TYPES.IPersonaUseCase));
-    const pUC = pUCRef.current;
-    const isLoadingRef = useRef(false);
+export class ListadoPersonasVM {
+  personas: PersonaDTO[] = [];
+  personaSeleccionada: PersonaDTO | null = null;
 
-    const [personas, setPersonas] = useState<Persona[]>([]);
-    const [original, setOriginal] = useState<Persona[]>([]);
-    const [personaSeleccionada, setPersonaSeleccionada] = useState<Persona | null>(null);
-    const [puedeEliminar, setPuedeEliminar] = useState(true);
-    const [loading, setLoading] = useState(false);
+  constructor(
+    private getPersonas: GetPersonasUseCase,
+    private deletePersona: DeletePersonaUseCase
+  ) {
+    makeAutoObservable(this);
+  }
 
-    const loadData = useCallback(async () => {
-        // Prevenir múltiples llamadas simultáneas
-        if (isLoadingRef.current) return;
-        isLoadingRef.current = true;
-        
-        setLoading(true);
-        try {
-            const dto = await pUC.getPersonaMayorDeEdadDTO();
-            const dtoDel = await pUC.getEliminarPersonaDTO();
-            
-            // Garantizamos que siempre sea un array
-            const listaValida = Array.isArray(dto.ListadoPersona) ? dto.ListadoPersona : [];
-            
-            setPersonas(listaValida);
-            setOriginal(listaValida);
-            setPuedeEliminar(dtoDel.puedeEliminar);
-            setPersonaSeleccionada(null);
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (e) {
-            setPersonas([]);
-            setOriginal([]);
-        } finally {
-            setLoading(false);
-            isLoadingRef.current = false;
-        }
-    }, [pUC]);
+  async cargarPersonas() {
+    this.personas = await this.getPersonas.execute();
+  }
 
-    const filtrar = useCallback((texto: string) => {
-        if (!texto || !original) {
-            setPersonas(original || []);
-            return;
-        }
-        const filtrados = original.filter(p => 
-            (p._nombre?.toLowerCase().includes(texto.toLowerCase())) || 
-            (p._apellidos?.toLowerCase().includes(texto.toLowerCase()))
-        );
-        setPersonas(filtrados);
-    }, [original]);
+  seleccionarPersona(persona: PersonaDTO) {
+    this.personaSeleccionada = persona;
+  }
 
-    const seleccionar = useCallback((p: Persona) => {
-        setPersonaSeleccionada(prev => (prev?._id === p._id ? null : p));
-    }, []);
-
-    const eliminarAction = useCallback(async () => {
-        if (!personaSeleccionada) return;
-        try {
-            await pUC.EliminarPersona(personaSeleccionada._id);
-            await loadData();
-        } catch (e: any) { 
-            Alert.alert("Error", e.message); 
-        }
-    }, [personaSeleccionada, pUC, loadData]);
-
-    return { 
-        personas, personaSeleccionada, seleccionar, 
-        puedeEliminar, loadData, eliminarAction, filtrar, loading 
-    };
-};
+  async eliminarPersona(id: number) {
+    await this.deletePersona.execute(id);
+    await this.cargarPersonas();
+  }
+}

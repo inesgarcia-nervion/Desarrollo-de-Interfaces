@@ -1,28 +1,27 @@
-import { useState, useCallback, useRef, useEffect } from "react";
-import { container } from "../../Core/container";
-import { TYPES } from "../../Core/types";
-import { Departamento } from "../../Domain/Entities/Departamento";
-import type { IDepartamentoUseCase } from "../../Domain/Interfaces/Usecases/IDepartamentoUseCase";
+import { makeAutoObservable } from "mobx";
+import { AddDepartamentoUseCase } from "../../Domain/Usecases/Departamentos/AddDepartamentoUseCase";
+import { UpdateDepartamentoUseCase } from "../../Domain/Usecases/Departamentos/UpdateDepartamentoUseCase";
+import { DepartamentoDTO } from "../../Domain/DTO/DepartamentoDTO";
 
-export const useEditarInsertarDepartamentosVM = (deptoEdit?: Departamento) => {
-    const ucRef = useRef(container.get<IDepartamentoUseCase>(TYPES.IDepartamentoUseCase));
-    const uc = ucRef.current;
-    const [nombre, setNombre] = useState(deptoEdit?._nombre ?? "");
+export class EditarInsertarDepartamentosVM {
+  departamento: DepartamentoDTO = {} as any;
 
-    // Actualizar el estado cuando cambia deptoEdit
-    useEffect(() => {
-        setNombre(deptoEdit?._nombre ?? "");
-    }, [deptoEdit]);
+  constructor(
+    private addDepartamento: AddDepartamentoUseCase,
+    private updateDepartamento: UpdateDepartamentoUseCase
+  ) {
+    makeAutoObservable(this);
+  }
 
-    const guardar = useCallback(async () => {
-        const d = new Departamento(deptoEdit?._id ?? 0, nombre);
-        
-        if (deptoEdit) {
-            await uc.EditarDepartamento(d);
-        } else {
-            await uc.InsertarDepartamento(d);
-        }
-    }, [deptoEdit, nombre, uc]);
+  setDepartamento(depto: DepartamentoDTO) {
+    this.departamento = depto;
+  }
 
-    return { nombre, setNombre, guardar };
-};
+  async guardar() {
+    if (this.departamento._id) {
+      await this.updateDepartamento.execute(this.departamento as any);
+    } else {
+      await this.addDepartamento.execute(this.departamento as any);
+    }
+  }
+}

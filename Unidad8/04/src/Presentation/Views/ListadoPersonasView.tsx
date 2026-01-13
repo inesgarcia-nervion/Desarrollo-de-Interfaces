@@ -1,159 +1,37 @@
-import React, { useEffect, useRef } from 'react';
-import { View, FlatList, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Image, RefreshControl } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useListadoPersonasVM } from '../Viewmodels/ListadoPersonasVM';
-import { ActionHeader } from '../Components/ActionHeader';
-import { FloatingAddButton } from '../Components/FloatingAddButton';
+import React, { useEffect } from "react";
+import { ListadoPersonasVM } from "../Viewmodels/ListadoPersonasVM";
+import { ActionHeader } from "../Components/ActionHeader";
+import { FloatingAddButton } from "../Components/FloatingAddButton";
+import { GetPersonasUseCase } from "../../../Domain/Usecases/Personas/GetPersonasUseCase";
+import { DeletePersonaUseCase } from "../../../Domain/Usecases/Personas/DeletePersonaUseCase";
+import { observer } from "mobx-react-lite";
+import { useRouter } from "next/navigation";
 
-export const ListadoPersonasView = () => {
-    const vm = useListadoPersonasVM();
-    const router = useRouter();
-    const isFirstLoad = useRef(true);
-    const [refreshing, setRefreshing] = React.useState(false);
+const vm = new ListadoPersonasVM(new GetPersonasUseCase(), new DeletePersonaUseCase());
 
-    // Cargar datos cuando la pantalla se monta
-    useEffect(() => {
-        if (isFirstLoad.current) {
-            vm.loadData();
-            isFirstLoad.current = false;
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+const ListadoPersonasView: React.FC = observer(() => {
+  const router = useRouter();
 
-    const onRefresh = React.useCallback(async () => {
-        setRefreshing(true);
-        await vm.loadData();
-        setRefreshing(false);
-    }, [vm]);
+  useEffect(() => {
+    vm.cargarPersonas();
+  }, []);
 
-    return (
-        <View style={styles.mainContainer}>
-            {/* Sección de foto */}
-            {vm.personaSeleccionada?._foto && (
-                <View style={styles.fotoSection}>
-                    <Text style={styles.fotoLabel}>Foto Seleccionada</Text>
-                    <Image 
-                        source={{ uri: vm.personaSeleccionada._foto }}
-                        style={styles.foto}
-                    />
-                    <Text style={styles.personaNombre}>
-                        {vm.personaSeleccionada._nombre} {vm.personaSeleccionada._apellidos}
-                    </Text>
-                </View>
-            )}
-
-            {/* Sección de búsqueda y acciones */}
-            <View style={styles.searchSection}>
-                <ActionHeader 
-                    placeholder="Buscar persona..."
-                    onSearch={vm.filtrar}
-                    onEdit={() => {
-                        if (vm.personaSeleccionada) {
-                            router.push({
-                                pathname: "/editarPersona",
-                                params: { persona: JSON.stringify(vm.personaSeleccionada) }
-                            });
-                        }
-                    }}
-                    onDelete={vm.eliminarAction}
-                    disabledEdit={!vm.personaSeleccionada}
-                    disabledDelete={!vm.personaSeleccionada || !vm.puedeEliminar}
-                />
-            </View>
-
-            {/* Sección de lista */}
-            <View style={styles.listSection}>
-                {vm.loading ? (
-                    <ActivityIndicator size="large" style={{ marginTop: 20 }} />
-                ) : (
-                    <FlatList
-                        data={vm.personas || []}
-                        keyExtractor={(item, index) => item?._id?.toString() ?? index.toString()}
-                        renderItem={({ item }) => (
-                            <TouchableOpacity 
-                                onPress={() => vm.seleccionar(item)}
-                                style={[styles.card, vm.personaSeleccionada?._id === item._id && styles.selectedCard]}
-                            >
-                                <Text style={styles.cardText}>{item._nombre} {item._apellidos}</Text>
-                            </TouchableOpacity>
-                        )}
-                        scrollEnabled={true}
-                        refreshControl={
-                            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-                        }
-                    />
-                )}
-            </View>
-
-            <FloatingAddButton onPress={() => router.push("/editarPersona")} />
-        </View>
-    );
-};
-
-const styles = StyleSheet.create({
-    mainContainer: { 
-        flex: 1, 
-        backgroundColor: '#f5f5f5'
-    },
-    fotoSection: {
-        backgroundColor: 'white',
-        alignItems: 'center',
-        paddingVertical: 20,
-        paddingHorizontal: 15,
-        borderBottomWidth: 2,
-        borderColor: '#e0e0e0',
-        elevation: 3
-    },
-    fotoLabel: {
-        fontSize: 12,
-        color: '#999',
-        marginBottom: 10,
-        textTransform: 'uppercase',
-        fontWeight: 'bold'
-    },
-    personaNombre: {
-        fontSize: 16,
-        fontWeight: '600',
-        marginTop: 10,
-        color: '#333'
-    },
-    foto: { 
-        width: 120, 
-        height: 120, 
-        borderRadius: 60,
-        borderWidth: 2,
-        borderColor: '#3498db'
-    },
-    searchSection: {
-        backgroundColor: 'white',
-        paddingHorizontal: 10,
-        paddingVertical: 15,
-        borderBottomWidth: 1,
-        borderColor: '#e0e0e0'
-    },
-    listSection: {
-        flex: 1,
-        paddingTop: 10
-    },
-    card: { 
-        backgroundColor: 'white', 
-        padding: 15, 
-        marginBottom: 8,
-        marginHorizontal: 10, 
-        borderRadius: 8, 
-        elevation: 2,
-        borderLeftWidth: 4,
-        borderLeftColor: '#ddd'
-    },
-    selectedCard: { 
-        borderLeftColor: '#3498db',
-        backgroundColor: '#e3f2fd',
-        borderWidth: 1,
-        borderColor: '#3498db'
-    },
-    cardText: { 
-        fontSize: 15,
-        fontWeight: '500',
-        color: '#333'
-    }
+  return (
+    <div>
+      <ActionHeader title="Listado de Personas" onAdd={() => router.push("/drawer/editarPersona")} />
+      <ul>
+        {vm.personas.map(p => (
+          <li key={p._id} className="flex justify-between p-2 border-b">
+            <span>{p._nombre} {p._apellidos} - {p.nombreDepartamento}</span>
+            <div>
+              <button onClick={() => router.push(`/drawer/editarPersona?id=${p._id}`)} className="text-blue-500 mr-2">Editar</button>
+              <button onClick={() => vm.eliminarPersona(p._id)} className="text-red-500">Borrar</button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 });
+
+export default ListadoPersonasView;

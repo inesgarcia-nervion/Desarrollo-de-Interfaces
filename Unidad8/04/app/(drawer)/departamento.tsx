@@ -1,5 +1,5 @@
-import { ListadoDepartamentosView } from "../../src/Presentation/Views/ListadoDepartamentosView";
+import ListadoDepartamentosView from "@/src/Presentation/Views/ListadoDepartamentosView";
 
-export default function Page() {
-    return <ListadoDepartamentosView />;
+export default function DepartamentosPage() {
+  return <ListadoDepartamentosView />;
 }

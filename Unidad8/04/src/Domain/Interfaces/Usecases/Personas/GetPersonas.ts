@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import { EditarInsertarDepartamentosVM } from "../Viewmodels/EditarInsertarDepartamentosVM";
-import { AddDepartamentoUseCase } from "../../../Domain/Usecases/Departamentos/AddDepartamentoUseCase";
-import { UpdateDepartamentoUseCase } from "../../../Domain/Usecases/Departamentos/UpdateDepartamentoUseCase";
+import { EditarInsertarDepartamentosVM } from "../../../../Presentation/Viewmodels/EditarInsertarDepartamentosVM";
+import { AddDepartamentoUseCase } from "../../../Usecases/Departamentos/AddDepartamentoUseCase";
+import { UpdateDepartamentoUseCase } from "../../../Usecases/Departamentos/UpdateDepartamentoUseCase";
 import { useRouter } from "next/navigation";
 
 export default function EditarInsertarDepartamentosView({ departamentoId }: { departamentoId?: string }) {

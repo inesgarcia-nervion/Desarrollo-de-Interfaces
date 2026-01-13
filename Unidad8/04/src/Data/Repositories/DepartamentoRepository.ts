@@ -1,25 +1,33 @@
-import { injectable, inject } from "inversify";
-import { TYPES } from "../../Core/types";
-import { BaseApi } from "../../Core/BaseApi";
+import { injectable } from "inversify";
+import { BaseApi } from "../../Data/Api/BaseApi";
 import { Departamento } from "../../Domain/Entities/Departamento";
-import type { IDepartamentoRepository } from "../../Domain/Interfaces/Repositories/IDepartamentoRepository";
-
-// Función para mapear la entidad Departamento al formato de la API
-function mapDepartamentoToApi(d: Departamento) {
-    return {
-        id: d._id,
-        nombre: d._nombre
-    };
-}
+import { IDepartamentoRepository } from "../../Domain/Interfaces/Repositories/IDepartamentoRepository";
 
 @injectable()
 export class DepartamentoRepository implements IDepartamentoRepository {
-    constructor(@inject(TYPES.BaseApi) private api: BaseApi) {}
+  constructor(private api: BaseApi = new BaseApi()) {}
 
-    async GetListadoDepartamentos() { return this.api.get<Departamento[]>("Departamentos"); }
-    async GetDepartamentoPorId(id: number) { return this.api.get<Departamento>(`Departamentos/${id}`); }
-    async InsertarDepartamento(d: Departamento) { return this.api.post<number>("Departamentos", mapDepartamentoToApi(d)); }
-    async EditarDepartamento(d: Departamento) { return this.api.put<number>(`Departamentos/${d._id}`, mapDepartamentoToApi(d)); }
-    async EliminarDepartamento(id: number) { return this.api.delete<number>(`Departamentos/${id}`); }
-    async ContarPersonasEnDepartamento(id: number) { return this.api.get<number>(`Departamentos/CountPersonas/${id}`); }
+  async GetListadoDepartamentos(): Promise<Departamento[]> {
+    return this.api.get<Departamento[]>("departamentos");
+  }
+
+  async GetDepartamentoPorId(id: number): Promise<Departamento> {
+    return this.api.get<Departamento>(`departamentos/${id}`);
+  }
+
+  async InsertarDepartamento(departamento: Departamento): Promise<number> {
+    return this.api.post<number>("departamentos", departamento);
+  }
+
+  async EditarDepartamento(departamento: Departamento): Promise<number> {
+    return this.api.put<number>(`departamentos/${departamento.id}`, departamento);
+  }
+
+  async EliminarDepartamento(idDepartamento: number): Promise<number> {
+    return this.api.delete<number>(`departamentos/${idDepartamento}`);
+  }
+
+  async ContarPersonasEnDepartamento(idDepartamento: number): Promise<number> {
+    return this.api.get<number>(`departamentos/${idDepartamento}/personas/count`);
+  }
 }

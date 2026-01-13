@@ -1,80 +1,36 @@
-import { useState, useEffect, useCallback, useRef } from "react";
-import { container } from "../../Core/container";
-import { TYPES } from "../../Core/types";
-import { Persona } from "../../Domain/Entities/Persona";
-import { Departamento } from "../../Domain/Entities/Departamento";
-import type { IPersonaUseCase } from "../../Domain/Interfaces/Usecases/IPersonaUseCase";
-import type { IDepartamentoUseCase } from "../../Domain/Interfaces/Usecases/IDepartamentoUseCase";
+import { makeAutoObservable } from "mobx";
+import { AddPersonaUseCase } from "../../Domain/Usecases/Personas/AddPersonaUseCase";
+import { UpdatePersonaUseCase } from "../../Domain/Usecases/Personas/UpdatePersonaUseCase";
+import { GetDepartamentosUseCase } from "../../Domain/Usecases/Departamentos/GetDepartamentosUseCase";
+import { PersonaDTO } from "../../Domain/DTO/PersonaDTO";
+import { DepartamentoDTO } from "../../Domain/DTO/DepartamentoDTO";
 
-// Función para calcular fecha de nacimiento a partir de edad
-function calcularFechaNacimientoDesdeEdad(edad: number): string {
-    const hoy = new Date();
-    const fechaNac = new Date(hoy.getFullYear() - edad, hoy.getMonth(), hoy.getDate());
-    return fechaNac.toISOString().split('T')[0];
+export class EditarInsertarPersonasVM {
+  persona: PersonaDTO = {} as any;
+  departamentos: DepartamentoDTO[] = [];
+
+  constructor(
+    private addPersona: AddPersonaUseCase,
+    private updatePersona: UpdatePersonaUseCase,
+    private getDepartamentos: GetDepartamentosUseCase
+  ) {
+    makeAutoObservable(this);
+    this.cargarDepartamentos();
+  }
+
+  async cargarDepartamentos() {
+    this.departamentos = await this.getDepartamentos.execute();
+  }
+
+  setPersona(persona: PersonaDTO) {
+    this.persona = persona;
+  }
+
+  async guardar() {
+    if (this.persona._id) {
+      await this.updatePersona.execute(this.persona as any);
+    } else {
+      await this.addPersona.execute(this.persona as any);
+    }
+  }
 }
-
-export const useEditarInsertarPersonasVM = (pEdit?: Persona) => {
-    const pUCRef = useRef(container.get<IPersonaUseCase>(TYPES.IPersonaUseCase));
-    const dUCRef = useRef(container.get<IDepartamentoUseCase>(TYPES.IDepartamentoUseCase));
-    const pUC = pUCRef.current;
-    const dUC = dUCRef.current;
-
-    const [nombre, setNombre] = useState(pEdit?._nombre ?? "");
-    const [apellidos, setApellidos] = useState(pEdit?._apellidos ?? "");
-    const [edad, setEdad] = useState(pEdit?._edad?.toString() ?? "");
-    const [foto, setFoto] = useState(pEdit?._foto ?? "");
-    const [idDepto, setIdDepto] = useState(pEdit?._idDepartamento ?? 0);
-    const [departamentos, setDepartamentos] = useState<Departamento[]>([]);
-
-    // Actualizar los estados cuando cambia pEdit (cuando selecciona otra persona)
-    useEffect(() => {
-        setNombre(pEdit?._nombre ?? "");
-        setApellidos(pEdit?._apellidos ?? "");
-        setEdad(pEdit?._edad?.toString() ?? "");
-        setFoto(pEdit?._foto ?? "");
-        setIdDepto(pEdit?._idDepartamento ?? 0);
-    }, [pEdit]);
-
-    useEffect(() => {
-        dUC.GetListadoDepartamentos().then(setDepartamentos);
-    }, [dUC]);
-
-    const guardar = useCallback(async () => {
-        const edadNum = parseInt(edad) || 0;
-        // Si se cambió la edad, calcular la nueva fecha de nacimiento
-        const nuevaFechaNacimiento = edad !== pEdit?._edad?.toString() 
-            ? calcularFechaNacimientoDesdeEdad(edadNum)
-            : (pEdit?._fechaNacimiento ?? "");
-        
-        console.log("Guardando persona con datos:", {
-            nombre, apellidos, edad, foto, idDepto,
-            pEdit: pEdit?._id
-        });
-        const p = new Persona(
-            pEdit?._id ?? 0, 
-            nombre, 
-            apellidos, 
-            edadNum, 
-            nuevaFechaNacimiento, 
-            pEdit?._direccion ?? "", 
-            pEdit?._telefono ?? "", 
-            idDepto, 
-            foto
-        );
-        console.log("Objeto Persona creado:", p);
-        try {
-            if (pEdit?._id) {
-                console.log("Editando persona...");
-                await pUC.EditarPersona(p);
-            } else {
-                console.log("Insertando persona...");
-                await pUC.InsertarPersona(p);
-            }
-        } catch (e) {
-            console.error("Error al guardar:", e);
-            throw e;
-        }
-    }, [pEdit, nombre, apellidos, edad, idDepto, foto, pUC]);
-
-    return { nombre, setNombre, apellidos, setApellidos, edad, setEdad, idDepto, setIdDepto, foto, setFoto, departamentos, guardar };
-};

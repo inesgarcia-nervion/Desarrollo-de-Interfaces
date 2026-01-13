@@ -1,47 +1,15 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React from "react";
+import Link from "next/link";
 
-export const HomeView = () => {
-    return (
-        <View style={styles.container}>
-            <View style={styles.content}>
-                <Text style={styles.title}>Bienvenido</Text>
-                <Text style={styles.subtitle}>Gestión de Personas y Departamentos</Text>
-                <Text style={styles.hint}>
-                    Utiliza el menú lateral (drawer) para navegar entre las diferentes secciones de la aplicación.
-                </Text>
-            </View>
-        </View>
-    );
-};
-
-const styles = StyleSheet.create({
-    container: { 
-        flex: 1, 
-        backgroundColor: '#f5f5f5',
-        justifyContent: 'center',
-        alignItems: 'center'
-    },
-    content: {
-        padding: 30,
-        alignItems: 'center'
-    },
-    title: { 
-        fontSize: 36, 
-        fontWeight: 'bold', 
-        color: '#2c3e50',
-        marginBottom: 15
-    },
-    subtitle: {
-        fontSize: 18,
-        color: '#34495e',
-        marginBottom: 30,
-        textAlign: 'center'
-    },
-    hint: {
-        fontSize: 14,
-        color: '#7f8c8d',
-        textAlign: 'center',
-        paddingHorizontal: 20 
-    }
-});
+export default function HomeView() {
+  return (
+    <div className="p-8 text-center">
+      <h1 className="text-3xl font-bold mb-4">Bienvenido a la App de Gestión</h1>
+      <p className="mb-8">Selecciona una opción del menú o utiliza los botones a continuación:</p>
+      <div className="flex justify-center gap-4">
+        <Link href="/drawer/personas" className="bg-blue-500 text-white p-4 rounded">Listado de Personas</Link>
+        <Link href="/drawer/departamento" className="bg-green-500 text-white p-4 rounded">Listado de Departamentos</Link>
+      </div>
+    </div>
+  );
+}

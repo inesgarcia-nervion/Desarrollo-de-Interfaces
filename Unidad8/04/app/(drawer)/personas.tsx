@@ -1,5 +1,5 @@
-import { ListadoPersonasView } from "../../src/Presentation/Views/ListadoPersonasView";
+import ListadoPersonasView from "@/src/Presentation/Views/ListadoPersonasView";
 
-export default function Page() {
-    return <ListadoPersonasView />;
+export default function PersonasPage() {
+  return <ListadoPersonasView />;
 }

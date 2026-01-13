@@ -1,31 +1,23 @@
-import { Drawer } from "expo-router/drawer";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
+"use client";
+import Link from "next/link";
+import { useState } from "react";
 
-export default function Layout() {
+export default function DrawerLayout({ children }: { children: React.ReactNode }) {
+  const [isOpen, setIsOpen] = useState(false);
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Drawer>
-        {/* Pantallas que SÍ se ven en el menú */}
-        <Drawer.Screen name="index" options={{ drawerLabel: "Inicio", title: "Inicio" }} />
-        <Drawer.Screen name="personas" options={{ drawerLabel: "Personas", title: "Listado Personas" }} />
-        <Drawer.Screen name="departamento" options={{ drawerLabel: "Departamentos", title: "Listado Deptos" }} />
-
-        {/* Pantallas que están DENTRO pero SE OCULTAN del menú lateral */}
-        <Drawer.Screen 
-            name="editarPersona" 
-            options={{ 
-                drawerItemStyle: { display: 'none' }, // Esto hace que no salga el botón
-                title: "Datos Persona" 
-            }} 
-        />
-        <Drawer.Screen 
-            name="editarDepto" 
-            options={{ 
-                drawerItemStyle: { display: 'none' }, 
-                title: "Datos Departamento" 
-            }} 
-        />
-      </Drawer>
-    </GestureHandlerRootView>
+    <div className="flex">
+      <div className={`bg-gray-200 p-4 h-screen transition-transform ${isOpen ? "translate-x-0" : "-translate-x-full"} fixed`}>
+        <button onClick={() => setIsOpen(false)}>Cerrar</button>
+        <nav className="flex flex-col gap-2">
+          <Link href="/drawer/index">Inicio</Link>
+          <Link href="/drawer/personas">Personas</Link>
+          <Link href="/drawer/departamento">Departamentos</Link>
+        </nav>
+      </div>
+      <div className="flex-1 ml-0 md:ml-64">
+        <button className="p-2 bg-blue-500 text-white m-2" onClick={() => setIsOpen(true)}>Abrir Menú</button>
+        {children}
+      </div>
+    </div>
   );
 }
