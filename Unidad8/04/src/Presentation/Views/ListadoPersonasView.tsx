@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { ListadoPersonasVM } from "../Viewmodels/ListadoPersonasVM";
 import { ActionHeader } from "../Components/ActionHeader";
 import { FloatingAddButton } from "../Components/FloatingAddButton";
@@ -21,6 +21,8 @@ const ListadoPersonasView: React.FC = observer(() => {
     return (s.startsWith('http') || s.startsWith('https') || s.startsWith('data:')) ? s : _smallFallback;
   };
 
+  const [msg, setMsg] = useState<string | null>(null);
+
   useEffect(() => {
     console.log('[view] ListadoPersonasView mounted, loading personas');
     vm.cargarPersonas();
@@ -36,14 +38,24 @@ const ListadoPersonasView: React.FC = observer(() => {
   };
 
   const onDelete = async () => {
-    if (vm.personaSeleccionada) {
+    if (!vm.personaSeleccionada) return;
+    try {
       await vm.eliminarPersona(vm.personaSeleccionada._id);
+      vm.personaSeleccionada = null as any;
+      setMsg('Persona eliminada correctamente');
+      setTimeout(() => setMsg(null), 2500);
+    } catch (err) {
+      console.error('Error eliminando persona:', err);
     }
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <ActionHeader title="Listado de Personas" />
+
+      {msg ? (
+        <div style={{ margin: 12, padding: 10, borderRadius: 8, background: '#ecfeff', color: '#065f46', border: '1px solid #bbf7d0' }}>{msg}</div>
+      ) : null}
 
       {vm.personaSeleccionada ? (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: '#f8fafc', borderBottom: '1px solid #e6eef8' }}>

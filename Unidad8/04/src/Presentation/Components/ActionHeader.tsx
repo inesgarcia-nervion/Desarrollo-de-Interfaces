@@ -29,11 +29,8 @@ export const ActionHeader = ({
         return (
             <View style={[styles.header, { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}>
                 <Text style={{ fontSize: 18, fontWeight: '700' }}>{title}</Text>
-                {onAdd && (
-                    <TouchableOpacity style={[styles.btn, styles.btnEdit]} onPress={onAdd}>
-                        <Text style={styles.btnText}>Añadir</Text>
-                    </TouchableOpacity>
-                )}
+                {/* Top 'Añadir' button removed by request; use floating add button instead */}
+                <View />
             </View>
         );
     }

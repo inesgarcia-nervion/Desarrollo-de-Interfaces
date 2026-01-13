@@ -27,7 +27,16 @@ export class ListadoDepartamentosVM {
   }
 
   seleccionarDepartamento(depto: DepartamentoDTO) {
-    this.deptoSeleccionado = depto;
+    if (!depto) {
+      this.deptoSeleccionado = null;
+      return;
+    }
+
+    if (this.deptoSeleccionado && this.deptoSeleccionado._id === depto._id) {
+      this.deptoSeleccionado = null;
+    } else {
+      this.deptoSeleccionado = depto;
+    }
   }
 
   async eliminarDepartamento(id: number) {

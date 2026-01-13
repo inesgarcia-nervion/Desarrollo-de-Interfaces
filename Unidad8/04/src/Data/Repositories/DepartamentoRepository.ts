@@ -16,11 +16,21 @@ export class DepartamentoRepository implements IDepartamentoRepository {
   }
 
   async InsertarDepartamento(departamento: Departamento): Promise<number> {
-    return this.api.post<number>("departamentos", departamento);
+    // normalize possible DTO fields (_nombre) to backend expected shape
+    const payload: any = {
+      nombre: (departamento as any)._nombre ?? (departamento as any).nombre ?? ""
+    };
+    console.debug('[DepartamentoRepository] Insert payload:', payload);
+    return this.api.post<number>("departamentos", payload);
   }
 
   async EditarDepartamento(departamento: Departamento): Promise<number> {
-    return this.api.put<number>(`departamentos/${departamento.id}`, departamento);
+    const id = (departamento as any).id ?? (departamento as any)._id;
+    const payload: any = {
+      nombre: (departamento as any)._nombre ?? (departamento as any).nombre ?? ""
+    };
+    console.debug('[DepartamentoRepository] Edit payload:', id, payload);
+    return this.api.put<number>(`departamentos/${id}`, payload);
   }
 
   async EliminarDepartamento(idDepartamento: number): Promise<number> {
