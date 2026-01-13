@@ -13,7 +13,17 @@ export default function EditarInsertarDepartamentosView({ departamentoId }: { de
 
   useEffect(() => {
     if (departamentoId) {
-      // Cargar departamento desde repo si existe
+      (async () => {
+        try {
+          const id = Number(departamentoId);
+          const d = await departamentoRepo.GetDepartamentoPorId(id);
+          if (d) {
+            vm.setDepartamento({ _id: d.id, _nombre: d.nombre });
+          }
+        } catch (err) {
+          console.error('Error cargando departamento:', err);
+        }
+      })();
     }
   }, [departamentoId]);
 

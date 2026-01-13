@@ -20,7 +20,8 @@ export default function EditarInsertarDepartamentosView({ departamentoId }: { de
       onSubmit={async e => {
         e.preventDefault();
         await vm.guardar();
-        router.push("/drawer/departamento");
+        // cast to any to satisfy different router type signatures in this mixed codebase
+        router.push("/drawer/departamento" as any);
       }}
     >
       <input

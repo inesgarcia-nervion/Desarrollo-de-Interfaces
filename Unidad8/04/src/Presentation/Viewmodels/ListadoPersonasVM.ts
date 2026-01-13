@@ -37,12 +37,22 @@ export class ListadoPersonasVM {
     });
   }
 
-  seleccionarPersona(persona: PersonaDTO) {
-    this.personaSeleccionada = persona;
+  seleccionarPersona(persona: PersonaDTO | null) {
+    if (!persona) {
+      this.personaSeleccionada = null;
+      return;
+    }
+
+    if (this.personaSeleccionada && this.personaSeleccionada._id === persona._id) {
+      this.personaSeleccionada = null;
+    } else {
+      this.personaSeleccionada = persona;
+    }
   }
 
   async eliminarPersona(id: number) {
     await this.deletePersona.execute(id);
     await this.cargarPersonas();
+    this.personaSeleccionada = null;
   }
 }
