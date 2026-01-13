@@ -38,8 +38,21 @@ function EditarInsertarPersonasView({ personaId }: Props) {
         const id = src._id ?? src.id ?? 0;
         const nombre = src._nombre ?? src.nombre ?? "";
         const apellidos = src._apellidos ?? src.apellidos ?? src.apellido ?? "";
-        const edad = src._edad ?? src.edad ?? src.edadPersona ?? 0;
+        let edad = src._edad ?? src.edad ?? src.edadPersona ?? 0;
         const fecha = src._fechaNacimiento ?? src.fechaNacimiento ?? src.fechaNac ?? null;
+        // If backend doesn't provide edad, compute from fechaNacimiento
+        if ((!edad || edad === 0) && fecha) {
+          try {
+            const birth = new Date(fecha);
+            const now = new Date();
+            let years = now.getFullYear() - birth.getFullYear();
+            const m = now.getMonth() - birth.getMonth();
+            if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) years--;
+            edad = years;
+          } catch (e) {
+            // keep edad as-is on parse errors
+          }
+        }
         const direccion = src._direccion ?? src.direccion ?? "";
         const telefono = src._telefono ?? src.telefono ?? "";
         const foto = src._foto ?? src.foto ?? null;

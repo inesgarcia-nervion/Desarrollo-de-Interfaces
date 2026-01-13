@@ -18,12 +18,28 @@ export class ListadoPersonasVM {
     const result: any = await this.getPersonas.execute();
     const mapped = (result || []).map((r: any) => {
       const p = r.persona || r;
+      // compute age from fechaNacimiento if backend doesn't provide edad
+      const fecha = p.fechaNacimiento ?? p._fechaNacimiento ?? null;
+      let edad = p.edad ?? (p._edad ?? 0);
+      if ((!edad || edad === 0) && fecha) {
+        try {
+          const birth = new Date(fecha);
+          const now = new Date();
+          let years = now.getFullYear() - birth.getFullYear();
+          const m = now.getMonth() - birth.getMonth();
+          if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) years--;
+          edad = years;
+        } catch (e) {
+          edad = edad ?? 0;
+        }
+      }
+
       return {
         _id: p.id ?? p._id,
         _nombre: p.nombre ?? p._nombre ?? "",
         _apellidos: p.apellido ?? p._apellidos ?? "",
-        _edad: p.edad ?? 0,
-        _fechaNacimiento: p.fechaNacimiento ?? p._fechaNacimiento ?? "",
+        _edad: edad,
+        _fechaNacimiento: fecha ?? "",
         _direccion: p.direccion ?? p._direccion ?? "",
         _telefono: p.telefono ?? p._telefono ?? "",
         _foto: p.foto ?? p._foto ?? null,
