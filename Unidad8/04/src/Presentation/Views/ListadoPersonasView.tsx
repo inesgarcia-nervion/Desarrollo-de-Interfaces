@@ -2,8 +2,8 @@ import React, { useEffect } from "react";
 import { ListadoPersonasVM } from "../Viewmodels/ListadoPersonasVM";
 import { ActionHeader } from "../Components/ActionHeader";
 import { FloatingAddButton } from "../Components/FloatingAddButton";
-import { GetPersonasUseCase } from "../../../Domain/Usecases/Personas/GetPersonasUseCase";
-import { DeletePersonaUseCase } from "../../../Domain/Usecases/Personas/DeletePersonaUseCase";
+import { GetPersonasUseCase } from "../../Domain/Usecases/Personas/GetPersonasUseCase";
+import { DeletePersonaUseCase } from "../../Domain/Usecases/Personas/DeletePersonaUseCase";
 import { observer } from "mobx-react-lite";
 import { useRouter } from "next/navigation";
 
