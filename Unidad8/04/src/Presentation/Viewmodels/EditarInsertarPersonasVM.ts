@@ -19,11 +19,18 @@ export class EditarInsertarPersonasVM {
   }
 
   async cargarDepartamentos() {
-    const deps = await this.getDepartamentos.execute();
-    runInAction(() => {
-      this.departamentos = deps;
-    });
-  }
+  const deps = await this.getDepartamentos.execute();
+
+  const mapped = (deps || []).map(d => ({
+    _id: d.id,
+    _nombre: d.nombre
+  }));
+
+  runInAction(() => {
+    this.departamentos = mapped;
+  });
+}
+
 
   setPersona(persona: PersonaDTO) {
     runInAction(() => {
