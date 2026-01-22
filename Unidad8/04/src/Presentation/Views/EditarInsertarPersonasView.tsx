@@ -23,6 +23,54 @@ function EditarInsertarPersonasView({ personaId }: Props) {
   const router = useRouter();
   const [vm] = useState(() => new EditarInsertarPersonasVM(new AddPersonaUseCase(repo), new UpdatePersonaUseCase(repo), new GetDepartamentosUseCase(deptRepo)));
   const [errMsg, setErrMsg] = useState<string | null>(null);
+  const [isEditingFecha, setIsEditingFecha] = useState(false);
+  const [fechaDisplay, setFechaDisplay] = useState<string>(() => {
+    try {
+      const iso = vm.persona._fechaNacimiento as string | undefined | null;
+      if (!iso) return '';
+      const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (m) return `${m[3]}/${m[2]}/${m[1]}`; // dd/mm/yyyy
+      return iso.slice(0, 10);
+    } catch { return ''; }
+  });
+
+  useEffect(() => {
+    // Don't auto-update display while user is actively editing the field
+    if (isEditingFecha) return;
+    
+    const iso = vm.persona._fechaNacimiento as string | undefined | null;
+    try {
+      if (!iso) { setFechaDisplay(''); return; }
+      // Only sync display when the persona field is a proper ISO date (yyyy-mm-dd...)
+      const m = (iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (m) {
+        setFechaDisplay(`${m[3]}/${m[2]}/${m[1]}`); // dd/mm/yyyy completo
+      }
+      // otherwise do not touch fechaDisplay to avoid interfering with user edits
+    } catch { /* noop - keep current display while editing */ }
+  }, [vm.persona._fechaNacimiento, isEditingFecha]);
+
+  function parseDisplayToISO(text: string) {
+    // Solo aceptar formato DD/MM/YYYY con año de 4 dígitos
+    const m = text.trim().match(/^(\d{1,2})[\/\-\.\s](\d{1,2})[\/\-\.\s](\d{4})$/);
+    if (!m) return null;
+    
+    let day = Number(m[1]);
+    let month = Number(m[2]);
+    let year = Number(m[3]);
+    
+    // Validar rangos
+    if (month < 1 || month > 12 || day < 1 || day > 31 || year < 1900 || year > 2100) return null;
+    
+    // Crear fecha en UTC para evitar problemas de zona horaria
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const d = new Date(dateStr + 'T00:00:00.000Z');
+    
+    // Validar que la fecha sea válida (por ejemplo, no aceptar 31/02/2000)
+    if (d.getUTCFullYear() !== year || d.getUTCMonth() !== month - 1 || d.getUTCDate() !== day) return null;
+    
+    return d.toISOString();
+  }
 
   const styles: { [k: string]: React.CSSProperties } = {
     card: { background: '#ffffff', borderRadius: 12, padding: 28, boxShadow: '0 6px 20px rgba(16,24,40,0.08)' },
@@ -140,25 +188,29 @@ function EditarInsertarPersonasView({ personaId }: Props) {
 
             <div>
               <label style={styles.label}>Fecha de nacimiento</label>
-              <input style={styles.input} type="date" value={vm.persona._fechaNacimiento ? (vm.persona._fechaNacimiento as string).slice(0,10) : ""} onChange={e => {
-                const v = e.target.value; // yyyy-mm-dd
-                if (v) {
-                  const iso = new Date(v).toISOString();
-                  runInAction(() => { vm.persona._fechaNacimiento = iso; });
-                  try {
-                    const birth = new Date(v);
-                    const now = new Date();
-                    let years = now.getFullYear() - birth.getFullYear();
-                    const m = now.getMonth() - birth.getMonth();
-                    if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) years--;
-                    runInAction(() => { vm.persona._edad = years; });
-                  } catch (err) {
-                    // keep previous edad on error
+              <input
+                style={styles.input}
+                type="date"
+                value={vm.persona._fechaNacimiento ? new Date(vm.persona._fechaNacimiento as string).toISOString().split('T')[0] : ''}
+                onChange={e => {
+                  const dateValue = e.target.value; // formato: yyyy-mm-dd
+                  if (dateValue) {
+                    const iso = new Date(dateValue + 'T00:00:00').toISOString();
+                    runInAction(() => {
+                      vm.persona._fechaNacimiento = iso;
+                      try {
+                        const birth = new Date(iso);
+                        const now = new Date();
+                        let years = now.getFullYear() - birth.getFullYear();
+                        const m = now.getMonth() - birth.getMonth();
+                        if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) years--;
+                        vm.persona._edad = years;
+                      } catch { /* noop */ }
+                    });
                   }
-                } else {
-                  runInAction(() => { vm.persona._fechaNacimiento = ""; });
-                }
-              }} />
+                }}
+              />
+              <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>Selecciona la fecha con el calendario</div>
             </div>
 
             <div style={{ gridColumn: '1 / -1' }}>
@@ -206,7 +258,10 @@ function EditarInsertarPersonasView({ personaId }: Props) {
 
   // Native rendering (minimal, avoids web-only tags)
   return (
-    <ScrollView contentContainerStyle={nativeStyles.container}>
+    <ScrollView 
+      contentContainerStyle={nativeStyles.container}
+      keyboardShouldPersistTaps="handled"
+    >
       <View style={nativeStyles.header}>
         {vm.persona._foto ? (
           <Image source={{ uri: vm.persona._foto as string }} style={nativeStyles.avatar} />
@@ -243,28 +298,30 @@ function EditarInsertarPersonasView({ personaId }: Props) {
         <Text style={nativeStyles.label}>Fecha de nacimiento</Text>
         <TextInput
           style={nativeStyles.input}
-          placeholder="YYYY-MM-DD"
-          value={vm.persona._fechaNacimiento ? (vm.persona._fechaNacimiento as string).slice(0,10) : ''}
+          placeholder="DD/MM/YYYY"
+          value={fechaDisplay}
+          onFocus={() => setIsEditingFecha(true)}
+          onBlur={() => setIsEditingFecha(false)}
           onChangeText={t => {
+            setFechaDisplay(t);
+            const iso = parseDisplayToISO(t);
             runInAction(() => {
-              try {
-                const parsed = new Date(t);
-                if (!isNaN(parsed.getTime())) {
-                  vm.persona._fechaNacimiento = parsed.toISOString();
-                  const now = new Date();
-                  let years = now.getFullYear() - parsed.getFullYear();
-                  const m = now.getMonth() - parsed.getMonth();
-                  if (m < 0 || (m === 0 && now.getDate() < parsed.getDate())) years--;
-                  vm.persona._edad = years;
-                } else {
-                  vm.persona._fechaNacimiento = t;
-                }
-              } catch (err) {
+              if (iso) {
+                vm.persona._fechaNacimiento = iso;
+                // Recalcular edad inmediatamente
+                const parsed = new Date(iso);
+                const now = new Date();
+                let years = now.getFullYear() - parsed.getUTCFullYear();
+                const m = now.getMonth() - parsed.getUTCMonth();
+                if (m < 0 || (m === 0 && now.getDate() < parsed.getUTCDate())) years--;
+                vm.persona._edad = years;
+              } else {
                 vm.persona._fechaNacimiento = t;
               }
             });
           }}
         />
+        <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>Formato: DD/MM/YYYY (año completo de 4 dígitos)</Text>
       </View>
 
       <View style={nativeStyles.formRow}>
@@ -315,7 +372,12 @@ function EditarInsertarPersonasView({ personaId }: Props) {
 export default observer(EditarInsertarPersonasView);
 
 const nativeStyles = StyleSheet.create({
-  container: { padding: 16, paddingTop: 110, backgroundColor: '#f8fafc', paddingBottom: 56 },
+  container: { 
+    padding: 16, 
+    paddingTop: 110, 
+    backgroundColor: '#f8fafc', 
+    paddingBottom: 300  // Aumentado de 56 a 300 para dar más espacio cuando aparece el teclado
+  },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 28 },
   avatar: { width: 64, height: 64, borderRadius: 64, backgroundColor: '#f3f4f6', marginRight: 16 },
   avatarPlaceholder: { backgroundColor: '#e5e7eb' },
@@ -330,4 +392,3 @@ const nativeStyles = StyleSheet.create({
   pickerWrap: { backgroundColor: '#fff', borderRadius: 8, borderWidth: 1, borderColor: '#e5e7eb' },
   imagePreview: { width: 120, height: 120, borderRadius: 8, marginTop: 12, alignSelf: 'flex-start' }
 });
-
