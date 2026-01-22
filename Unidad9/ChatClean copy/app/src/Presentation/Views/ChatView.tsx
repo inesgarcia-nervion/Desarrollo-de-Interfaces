@@ -23,7 +23,7 @@ export default function ChatView() {
         renderItem={({ item }) => (
           <View style={styles.messageItem}>
             <Text style={styles.userText}>{item.nombre}:</Text>
-            <Text>{item.mensaje}</Text>
+            <Text style={styles.messageText}>{item.mensaje}</Text>
           </View>
         )}
       />
@@ -35,6 +35,13 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
   inputContainer: { marginBottom: 20 },
   input: { borderBottomWidth: 1, marginBottom: 10, padding: 8 },
-  messageItem: { flexDirection: 'row', marginBottom: 10 },
-  userText: { fontWeight: 'bold', marginRight: 5 },
+  messageItem: { flexDirection: 'row', marginBottom: 10, alignItems: 'flex-start' },
+  userText: { fontWeight: 'bold', marginRight: 8 },
+  messageText: { flex: 1, flexWrap: 'wrap' },
+
+  // kept for compatibility with other variants
+  center: { flex: 1, justifyContent: 'center' },
+  inputRow: { flexDirection: 'row', padding: 10 },
+  msgBox: { marginBottom: 10, padding: 5, backgroundColor: '#f0f0f0' },
+  user: { fontWeight: 'bold' }
 });
