@@ -80,7 +80,7 @@ const ListadoPersonasView: React.FC = observer(() => {
           </div>
         ) : null}
 
-        <div style={{ padding: 12, flex: '1 1 auto', overflowY: 'auto', boxSizing: 'border-box' }}>
+        <div style={{ padding: 12, paddingBottom: 120, flex: '1 1 auto', overflowY: 'auto', boxSizing: 'border-box' }}>
           <ul style={{ display: 'flex', flexDirection: 'column', gap: 12, listStyle: 'none', padding: 0, margin: 0 }}>
             { (vm.personas || []).filter(p => {
                 if (!query) return true;
@@ -219,7 +219,7 @@ const nativeStyles = StyleSheet.create({
   deleteButton: { backgroundColor: '#ef4444', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, marginLeft: 8 },
   actionText: { color: '#fff' },
   list: { padding: 12, flex: 1 },
-  listContent: { gap: 12 },
+  listContent: { gap: 12, paddingBottom: 120 },
   card: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 8, backgroundColor: '#fff', marginBottom: 12 },
   cardSelected: { borderWidth: 1, borderColor: '#60a5fa', backgroundColor: '#f0f9ff' },
   cardImage: { width: 88, height: 88, borderRadius: 12, marginRight: 16 },

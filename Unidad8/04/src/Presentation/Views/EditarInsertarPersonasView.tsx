@@ -157,7 +157,7 @@ function EditarInsertarPersonasView({ personaId }: Props) {
               router.push("/personas");
             } catch (err: any) {
               console.error('[EditarView] guardar error', err);
-              setErrMsg(err?.message ?? String(err));
+              setErrMsg('Faltan datos por rellenar');
             }
           }}
         >
@@ -360,7 +360,7 @@ function EditarInsertarPersonasView({ personaId }: Props) {
               router.push('/personas');
             } catch (err: any) {
               console.error('[EditarView native] guardar error', err);
-              setErrMsg(err?.message ?? String(err));
+              setErrMsg('Faltan datos por rellenar');
             }
           }} style={nativeStyles.primaryBtn}><Text style={{ color: '#fff' }}>{isEditing ? 'Guardar' : 'Crear'}</Text></Pressable>
       </View>
