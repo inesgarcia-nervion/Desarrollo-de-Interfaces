@@ -28,7 +28,20 @@ export class PersonaRepository implements IPersonaRepository {
       idDepartamento: (persona as any)._idDepartamento ?? (persona as any).idDepartamento ?? 0
     };
 
-    return this.api.post<number>("personas", payload);
+    try {
+      console.debug('[PersonaRepository] POST payload:', payload);
+    } catch (e) {
+      // noop
+    }
+
+    try {
+      return await this.api.post<number>("personas", payload);
+    } catch (err: any) {
+      try {
+        console.error('[PersonaRepository] error inserting persona:', err?.message ?? err);
+      } catch (e) { /* noop */ }
+      throw err;
+    }
   }
 
   async EditarPersona(persona: Persona): Promise<number> {

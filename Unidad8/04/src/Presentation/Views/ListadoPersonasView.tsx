@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Platform, View, TextInput } from 'react-native';
+import { Platform, View, TextInput, Text, ScrollView, Image, Pressable, StyleSheet } from 'react-native';
 import { ListadoPersonasVM } from "../Viewmodels/ListadoPersonasVM";
 import { ActionHeader } from "../Components/ActionHeader";
 import { FloatingAddButton } from "../Components/FloatingAddButton";
@@ -32,10 +32,8 @@ const ListadoPersonasView: React.FC = observer(() => {
 
   const onEdit = () => {
     if (vm.personaSeleccionada) {
-      // store the id in localStorage as a fallback for client-side navigation
       try { localStorage.setItem('editingPersonaId', String(vm.personaSeleccionada._id)); } catch (e) { /* noop */ }
-      // push full URL with query string so the route's searchParams.id receives it
-      router.push(`/editarPersona?id=${vm.personaSeleccionada._id}` as any);
+      router.push({ pathname: '/editarPersona', params: { id: String(vm.personaSeleccionada._id) } } as any);
     }
   };
 
@@ -51,98 +49,184 @@ const ListadoPersonasView: React.FC = observer(() => {
     }
   };
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
-      <ActionHeader title="Listado de Personas" />
+  // Web rendering
+  if (Platform.OS === 'web') {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', paddingTop: 110, background: '#f8fafc' }}>
+        <ActionHeader title="Listado de Personas" />
 
-      {/* Buscador: web usa <input>, native usa TextInput */}
-      {Platform.OS === 'web' ? (
         <div style={{ padding: 12 }}>
           <input placeholder="Buscar personas..." value={query} onChange={e => setQuery(e.target.value)} style={{ padding: 8, width: '100%', borderRadius: 8, border: '1px solid #e5e7eb' }} />
         </div>
-      ) : (
-        <View style={{ padding: 12 }}>
-          <TextInput placeholder="Buscar personas..." value={query} onChangeText={t => setQuery(t)} style={{ padding: 8, borderRadius: 8, borderWidth: 1, borderColor: '#e5e7eb' }} />
-        </View>
-      )}
 
-      {msg ? (
-        <div style={{ margin: 12, padding: 10, borderRadius: 8, background: '#ecfeff', color: '#065f46', border: '1px solid #bbf7d0' }}>{msg}</div>
-      ) : null}
+        {msg ? (
+          <div style={{ margin: 12, padding: 10, borderRadius: 8, background: '#ecfeff', color: '#065f46', border: '1px solid #bbf7d0' }}>{msg}</div>
+        ) : null}
 
-      {vm.personaSeleccionada ? (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: '#f8fafc', borderBottom: '1px solid #e6eef8' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <img src={safeFoto(vm.personaSeleccionada._foto as any)} alt="sel" style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover' }} />
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 16 }}>{vm.personaSeleccionada._nombre} {vm.personaSeleccionada._apellidos}</div>
-              <div style={{ fontSize: 13, color: '#6b7280' }}>{vm.personaSeleccionada.nombreDepartamento || '—'}</div>
+        {vm.personaSeleccionada ? (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: '#f8fafc', borderBottom: '1px solid #e6eef8' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <img src={safeFoto(vm.personaSeleccionada._foto as any)} alt="sel" style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover' }} />
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 16 }}>{vm.personaSeleccionada._nombre} {vm.personaSeleccionada._apellidos}</div>
+                <div style={{ fontSize: 13, color: '#6b7280' }}>{vm.personaSeleccionada.nombreDepartamento || '—'}</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button onClick={onEdit} style={{ background: '#059669', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 8, cursor: 'pointer' }}>Editar</button>
+              <button onClick={onDelete} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 8, cursor: 'pointer' }}>Borrar</button>
             </div>
           </div>
+        ) : null}
 
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button onClick={onEdit} style={{ background: '#059669', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 8, cursor: 'pointer' }}>Editar</button>
-            <button onClick={onDelete} style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '8px 12px', borderRadius: 8, cursor: 'pointer' }}>Borrar</button>
-          </div>
-        </div>
-      ) : null}
-
-      <div style={{ padding: 12, flex: '1 1 auto', overflowY: 'auto', boxSizing: 'border-box' }}>
-        <ul style={{ display: 'flex', flexDirection: 'column', gap: 12, listStyle: 'none', padding: 0, margin: 0 }}>
-          { (vm.personas || []).filter(p => {
-              if (!query) return true;
-              const hay = `${p._nombre || ''} ${p._apellidos || ''} ${p.nombreDepartamento || ''}`.toLowerCase();
-              return hay.indexOf(query.toLowerCase()) !== -1;
-            }).map(p => (
-            <li
-              key={p._id}
-              onClick={() => vm.seleccionarPersona(p)}
-              style={{
-                width: '100%',
-                minHeight: '14vh',
-                background: vm.personaSeleccionada?._id === p._id ? '#f0f9ff' : '#fff',
-                borderRadius: 8,
-                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-                overflow: 'hidden',
-                display: 'flex',
-                alignItems: 'center',
-                padding: 16,
-                cursor: 'pointer',
-                border: vm.personaSeleccionada?._id === p._id ? '1px solid #60a5fa' : '1px solid transparent',
-              }}
-            >
-              {
-                (() => {
-                    // Use an embedded SVG data URI as a fallback to avoid external network requests
-                    const fallback = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><rect width='100%' height='100%' fill='%23dddddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-size='12'>Foto</text></svg>";
-                  const src = (p._foto || '').toString();
-                  const safe = src && (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) ? src : fallback;
-                  return (<img src={safe} alt={`${p._nombre} ${p._apellidos}`} style={{ width: 88, height: 88, borderRadius: 12, objectFit: 'cover', marginRight: 16, flexShrink: 0 }} />);
-                })()
-              }
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 18 }}>{p._nombre} {p._apellidos}</div>
-                    <div style={{ fontSize: 14, color: '#6b7280', marginTop: 6 }}>{p.nombreDepartamento || '—'}</div>
-                  </div>
-                  <div style={{ marginLeft: 8 }}>
-                    <span style={{ background: '#eef2ff', color: '#4f46e5', padding: '6px 10px', borderRadius: 9999, fontSize: 13 }}>{p._edad ?? ''} años</span>
+        <div style={{ padding: 12, flex: '1 1 auto', overflowY: 'auto', boxSizing: 'border-box' }}>
+          <ul style={{ display: 'flex', flexDirection: 'column', gap: 12, listStyle: 'none', padding: 0, margin: 0 }}>
+            { (vm.personas || []).filter(p => {
+                if (!query) return true;
+                const hay = `${p._nombre || ''} ${p._apellidos || ''} ${p.nombreDepartamento || ''}`.toLowerCase();
+                return hay.indexOf(query.toLowerCase()) !== -1;
+              }).map(p => (
+              <li
+                key={p._id}
+                onClick={() => vm.seleccionarPersona(p)}
+                style={{
+                  width: '100%',
+                  minHeight: '14vh',
+                  background: vm.personaSeleccionada?._id === p._id ? '#f0f9ff' : '#fff',
+                  borderRadius: 8,
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: 16,
+                  cursor: 'pointer',
+                  border: vm.personaSeleccionada?._id === p._id ? '1px solid #60a5fa' : '1px solid transparent',
+                }}
+              >
+                {
+                  (() => {
+                      const fallback = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><rect width='100%' height='100%' fill='%23dddddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-size='12'>Foto</text></svg>";
+                    const src = (p._foto || '').toString();
+                    const safe = src && (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) ? src : fallback;
+                    return (<img src={safe} alt={`${p._nombre} ${p._apellidos}`} style={{ width: 88, height: 88, borderRadius: 12, objectFit: 'cover', marginRight: 16, flexShrink: 0 }} />);
+                  })()
+                }
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 18 }}>{p._nombre} {p._apellidos}</div>
+                      <div style={{ fontSize: 14, color: '#6b7280', marginTop: 6 }}>{p.nombreDepartamento || '—'}</div>
+                    </div>
+                    <div style={{ marginLeft: 8 }}>
+                      <span style={{ background: '#eef2ff', color: '#4f46e5', padding: '6px 10px', borderRadius: 9999, fontSize: 13 }}>{p._edad ?? ''} años</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <FloatingAddButton onPress={() => {
+          try { localStorage.removeItem('editingPersonaId'); } catch (e) { /* noop */ }
+          router.push('/editarPersona');
+        }} />
       </div>
+    );
+  }
+
+  // Native rendering
+  const personas = (vm.personas || []).filter(p => {
+    if (!query) return true;
+    const hay = `${p._nombre || ''} ${p._apellidos || ''} ${p.nombreDepartamento || ''}`.toLowerCase();
+    return hay.indexOf(query.toLowerCase()) !== -1;
+  });
+
+  return (
+    <View style={nativeStyles.container}>
+      <ActionHeader title="Listado de Personas" />
+
+      <View style={nativeStyles.searchWrap}>
+        <TextInput placeholder="Buscar personas..." value={query} onChangeText={t => setQuery(t)} style={nativeStyles.searchInput} />
+      </View>
+
+      {msg ? <View style={nativeStyles.msg}><Text style={nativeStyles.msgText}>{msg}</Text></View> : null}
+
+      {vm.personaSeleccionada ? (
+        <View style={nativeStyles.selectedRow}>
+          <View style={nativeStyles.selectedLeft}>
+            <Image source={{ uri: safeFoto(vm.personaSeleccionada._foto as any) }} style={nativeStyles.selectedImage} />
+            <View>
+              <Text style={nativeStyles.selectedName}>{vm.personaSeleccionada._nombre} {vm.personaSeleccionada._apellidos}</Text>
+              <Text style={nativeStyles.selectedSubtitle}>{vm.personaSeleccionada.nombreDepartamento || '—'}</Text>
+            </View>
+          </View>
+          <View style={nativeStyles.selectedActions}>
+            <Pressable onPress={onEdit} style={nativeStyles.editButton}><Text style={nativeStyles.actionText}>Editar</Text></Pressable>
+            <Pressable onPress={onDelete} style={nativeStyles.deleteButton}><Text style={nativeStyles.actionText}>Borrar</Text></Pressable>
+          </View>
+        </View>
+      ) : null}
+
+      <ScrollView style={nativeStyles.list} contentContainerStyle={nativeStyles.listContent}>
+        {personas.map(p => {
+          const src = (p._foto || '').toString();
+          const fallback = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><rect width='100%' height='100%' fill='%23dddddd'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-size='12'>Foto</text></svg>";
+          const safe = src && (src.startsWith('http://') || src.startsWith('https://') || src.startsWith('data:')) ? src : fallback;
+          return (
+            <Pressable key={p._id} onPress={() => vm.seleccionarPersona(p)} style={[nativeStyles.card, vm.personaSeleccionada?._id === p._id && nativeStyles.cardSelected]}>
+              <Image source={{ uri: safe }} style={nativeStyles.cardImage} />
+              <View style={nativeStyles.cardBody}>
+                <View style={nativeStyles.cardRow}>
+                  <View>
+                    <Text style={nativeStyles.cardTitle}>{p._nombre} {p._apellidos}</Text>
+                    <Text style={nativeStyles.cardSubtitle}>{p.nombreDepartamento || '—'}</Text>
+                  </View>
+                  <View style={nativeStyles.badgeWrap}>
+                    <Text style={nativeStyles.badge}>{p._edad ?? ''} años</Text>
+                  </View>
+                </View>
+              </View>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
 
       <FloatingAddButton onPress={() => {
-        // clear any leftover editing id and open create route
         try { localStorage.removeItem('editingPersonaId'); } catch (e) { /* noop */ }
         router.push('/editarPersona');
       }} />
-    </div>
+    </View>
   );
 });
 
 export default ListadoPersonasView;
+
+const nativeStyles = StyleSheet.create({
+  container: { flex: 1, flexDirection: 'column', paddingTop: 110, paddingBottom: 56, backgroundColor: '#f8fafc' },
+  searchWrap: { padding: 12 },
+  searchInput: { padding: 8, borderRadius: 8, borderWidth: 1, borderColor: '#e5e7eb' },
+  msg: { margin: 12, padding: 10, borderRadius: 8, backgroundColor: '#ecfeff', borderWidth: 1, borderColor: '#bbf7d0' },
+  msgText: { color: '#065f46' },
+  selectedRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 16, backgroundColor: '#f8fafc', borderBottomWidth: 1, borderBottomColor: '#e6eef8' },
+  selectedLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  selectedImage: { width: 48, height: 48, borderRadius: 8, marginRight: 12 },
+  selectedName: { fontWeight: '700', fontSize: 16 },
+  selectedSubtitle: { fontSize: 13, color: '#6b7280' },
+  selectedActions: { flexDirection: 'row', gap: 8 },
+  editButton: { backgroundColor: '#059669', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, marginLeft: 8 },
+  deleteButton: { backgroundColor: '#ef4444', paddingVertical: 8, paddingHorizontal: 12, borderRadius: 8, marginLeft: 8 },
+  actionText: { color: '#fff' },
+  list: { padding: 12, flex: 1 },
+  listContent: { gap: 12 },
+  card: { flexDirection: 'row', alignItems: 'center', padding: 16, borderRadius: 8, backgroundColor: '#fff', marginBottom: 12 },
+  cardSelected: { borderWidth: 1, borderColor: '#60a5fa', backgroundColor: '#f0f9ff' },
+  cardImage: { width: 88, height: 88, borderRadius: 12, marginRight: 16 },
+  cardBody: { flex: 1, justifyContent: 'center' },
+  cardRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  cardTitle: { fontWeight: '700', fontSize: 18 },
+  cardSubtitle: { fontSize: 14, color: '#6b7280', marginTop: 6 },
+  badgeWrap: { marginLeft: 8 },
+  badge: { backgroundColor: '#eef2ff', color: '#4f46e5', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 9999, fontSize: 13 },
+});
