@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { Platform, View, TextInput } from 'react-native';
 import { ListadoDepartamentosVM } from "../Viewmodels/ListadoDepartamentosVM";
 import { ActionHeader } from "../Components/ActionHeader";
 import { FloatingAddButton } from "../Components/FloatingAddButton";
@@ -16,6 +17,7 @@ const ListadoDepartamentosView: React.FC = observer(() => {
   const router = useRouter();
 
   const [msg, setMsg] = useState<string | null>(null);
+  const [query, setQuery] = useState<string>('');
 
   useEffect(() => {
     console.log('[view] ListadoDepartamentosView mounted, loading departamentos');
@@ -38,6 +40,17 @@ const ListadoDepartamentosView: React.FC = observer(() => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
       <ActionHeader title="Listado de Departamentos" />
+
+      {/* Buscador: web usa <input>, native usa TextInput */}
+      {Platform.OS === 'web' ? (
+        <div style={{ padding: 12 }}>
+          <input placeholder="Buscar departamentos..." value={query} onChange={e => setQuery(e.target.value)} style={{ padding: 8, width: '100%', borderRadius: 8, border: '1px solid #e5e7eb' }} />
+        </div>
+      ) : (
+        <View style={{ padding: 12 }}>
+          <TextInput placeholder="Buscar departamentos..." value={query} onChangeText={t => setQuery(t)} style={{ padding: 8, borderRadius: 8, borderWidth: 1, borderColor: '#e5e7eb' }} />
+        </View>
+      )}
 
       {msg ? (
         <div style={{ margin: 12, padding: 10, borderRadius: 8, background: '#ecfdf5', color: '#065f46', border: '1px solid #bbf7d0' }}>{msg}</div>
@@ -65,7 +78,10 @@ const ListadoDepartamentosView: React.FC = observer(() => {
 
       <div style={{ padding: 12, flex: '1 1 auto', overflowY: 'auto', boxSizing: 'border-box' }}>
         <ul style={{ display: 'flex', flexDirection: 'column', gap: 12, listStyle: 'none', padding: 0, margin: 0 }}>
-          {vm.departamentos.map(d => (
+          { (vm.departamentos || []).filter(d => {
+              if (!query) return true;
+              return (d._nombre || '').toString().toLowerCase().indexOf(query.toLowerCase()) !== -1;
+            }).map(d => (
             <li
               key={d._id}
               onClick={() => vm.seleccionarDepartamento(d)}
