@@ -1,7 +1,7 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { observer } from "mobx-react-lite";
-import { runInAction } from 'mobx';
+import { runInAction, autorun } from 'mobx';
 import { Platform, View, TextInput, Text, ScrollView, Pressable, Image, StyleSheet } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { EditarInsertarPersonasVM } from "../Viewmodels/EditarInsertarPersonasVM";
@@ -23,54 +23,8 @@ function EditarInsertarPersonasView({ personaId }: Props) {
   const router = useRouter();
   const [vm] = useState(() => new EditarInsertarPersonasVM(new AddPersonaUseCase(repo), new UpdatePersonaUseCase(repo), new GetDepartamentosUseCase(deptRepo)));
   const [errMsg, setErrMsg] = useState<string | null>(null);
-  const [isEditingFecha, setIsEditingFecha] = useState(false);
-  const [fechaDisplay, setFechaDisplay] = useState<string>(() => {
-    try {
-      const iso = vm.persona._fechaNacimiento as string | undefined | null;
-      if (!iso) return '';
-      const m = iso.match(/^(\d{4})-(\d{2})-(\d{2})/);
-      if (m) return `${m[3]}/${m[2]}/${m[1]}`; // dd/mm/yyyy
-      return iso.slice(0, 10);
-    } catch { return ''; }
-  });
-
-  useEffect(() => {
-    // Don't auto-update display while user is actively editing the field
-    if (isEditingFecha) return;
-    
-    const iso = vm.persona._fechaNacimiento as string | undefined | null;
-    try {
-      if (!iso) { setFechaDisplay(''); return; }
-      // Only sync display when the persona field is a proper ISO date (yyyy-mm-dd...)
-      const m = (iso || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
-      if (m) {
-        setFechaDisplay(`${m[3]}/${m[2]}/${m[1]}`); // dd/mm/yyyy completo
-      }
-      // otherwise do not touch fechaDisplay to avoid interfering with user edits
-    } catch { /* noop - keep current display while editing */ }
-  }, [vm.persona._fechaNacimiento, isEditingFecha]);
-
-  function parseDisplayToISO(text: string) {
-    // Solo aceptar formato DD/MM/YYYY con año de 4 dígitos
-    const m = text.trim().match(/^(\d{1,2})[\/\-\.\s](\d{1,2})[\/\-\.\s](\d{4})$/);
-    if (!m) return null;
-    
-    let day = Number(m[1]);
-    let month = Number(m[2]);
-    let year = Number(m[3]);
-    
-    // Validar rangos
-    if (month < 1 || month > 12 || day < 1 || day > 31 || year < 1900 || year > 2100) return null;
-    
-    // Crear fecha en UTC para evitar problemas de zona horaria
-    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-    const d = new Date(dateStr + 'T00:00:00.000Z');
-    
-    // Validar que la fecha sea válida (por ejemplo, no aceptar 31/02/2000)
-    if (d.getUTCFullYear() !== year || d.getUTCMonth() !== month - 1 || d.getUTCDate() !== day) return null;
-    
-    return d.toISOString();
-  }
+  const [dateInput, setDateInput] = useState<string>('');
+  const isEditingDateRef = useRef(false);
 
   const styles: { [k: string]: React.CSSProperties } = {
     card: { background: '#ffffff', borderRadius: 12, padding: 28, boxShadow: '0 6px 20px rgba(16,24,40,0.08)' },
@@ -127,7 +81,7 @@ function EditarInsertarPersonasView({ personaId }: Props) {
           _nombre: nombre,
           _apellidos: apellidos,
           _edad: edad,
-          _fechaNacimiento: fecha ? new Date(fecha).toISOString() : new Date().toISOString(),
+          _fechaNacimiento: fecha ? new Date(fecha).toISOString() : '',
           _direccion: direccion,
           _telefono: telefono,
           _foto: foto,
@@ -142,6 +96,92 @@ function EditarInsertarPersonasView({ personaId }: Props) {
     })();
   }, [personaId]);
 
+  useEffect(() => {
+    const disp = autorun(() => {
+      const iso = vm.persona && (vm.persona._fechaNacimiento as string) ? (vm.persona._fechaNacimiento as string) : '';
+      // do not override the UI while the user is actively editing the date
+      if (isEditingDateRef.current) return;
+      if (!iso) {
+        setDateInput('');
+        return;
+      }
+      try {
+        const d = new Date(iso);
+        if (!isNaN(d.getTime())) {
+          const dd = String(d.getDate()).padStart(2, '0');
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const yyyy = String(d.getFullYear());
+          // display two-digit year for Spain format
+          setDateInput(`${dd}/${mm}/${yyyy.slice(-2)}`);
+          return;
+        }
+      } catch (e) {
+        // fallthrough
+      }
+      // fallback: show raw slice if parsing failed
+      setDateInput(iso.slice(0,10));
+    });
+    return () => disp();
+  }, []);
+
+  // Shared parser: accepts DD/MM/AA or DD/MM/AAAA or ISO-like strings or loose parse.
+  const parseAndApplyDate = (raw: string) => {
+    const t = (raw || '').trim();
+    console.debug('[parseAndApplyDate] raw=', raw, 'trimmed=', t);
+    if (t === '') {
+      runInAction(() => {
+        vm.persona._fechaNacimiento = '';
+        vm.persona._edad = 0;
+      });
+      return false;
+    }
+    const dm = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/;
+    const isoLike = /^\d{4}-\d{2}-\d{2}$/;
+    try {
+      let parsedDate: Date | null = null;
+      const m = t.match(dm);
+      if (m) {
+        const day = Number(m[1]);
+        const month = Number(m[2]);
+        let year = Number(m[3]);
+        if (String(m[3]).length === 2) {
+          const curYY = new Date().getFullYear() % 100;
+          year = year <= curYY ? 2000 + year : 1900 + year;
+        }
+        const candidate = new Date(year, month - 1, day);
+        if (!isNaN(candidate.getTime()) && candidate.getDate() === day && (candidate.getMonth() + 1) === month && candidate.getFullYear() === year) {
+          parsedDate = candidate;
+        }
+      } else if (isoLike.test(t)) {
+        const candidate = new Date(t);
+        if (!isNaN(candidate.getTime())) parsedDate = candidate;
+      } else {
+        const candidate = new Date(t);
+        if (!isNaN(candidate.getTime())) parsedDate = candidate;
+      }
+
+      if (parsedDate) {
+        runInAction(() => {
+          vm.persona._fechaNacimiento = parsedDate!.toISOString();
+          const now = new Date();
+          let years = now.getFullYear() - parsedDate!.getFullYear();
+          const mm2 = now.getMonth() - parsedDate!.getMonth();
+          if (mm2 < 0 || (mm2 === 0 && now.getDate() < parsedDate!.getDate())) years--;
+          vm.persona._edad = years;
+        });
+        const dd = String(parsedDate.getDate()).padStart(2, '0');
+        const mm3 = String(parsedDate.getMonth() + 1).padStart(2, '0');
+        const yyyy3 = String(parsedDate.getFullYear());
+        // store display with two-digit year for UX
+        setDateInput(`${dd}/${mm3}/${yyyy3.slice(-2)}`);
+        return true;
+      }
+    } catch (err) {
+      // ignore
+    }
+    return false;
+  };
+
   const isEditing = Boolean(vm.persona && vm.persona._id && Number(vm.persona._id) > 0);
 
   if (Platform.OS === 'web') {
@@ -151,14 +191,16 @@ function EditarInsertarPersonasView({ personaId }: Props) {
           style={styles.card}
           onSubmit={async e => {
             e.preventDefault();
-            try {
-              await vm.guardar();
-              // After saving, navigate to the personas list
-              router.push("/personas");
-            } catch (err: any) {
-              console.error('[EditarView] guardar error', err);
-              setErrMsg('Faltan datos por rellenar');
-            }
+              try {
+                // ensure any typed date is parsed/applied before saving
+                parseAndApplyDate(dateInput);
+                await vm.guardar();
+                // After saving, navigate to the personas list
+                router.push("/personas");
+              } catch (err: any) {
+                console.error('[EditarView] guardar error', err);
+                setErrMsg(err?.message ?? String(err));
+              }
           }}
         >
           <div style={styles.header}>
@@ -190,27 +232,65 @@ function EditarInsertarPersonasView({ personaId }: Props) {
               <label style={styles.label}>Fecha de nacimiento</label>
               <input
                 style={styles.input}
-                type="date"
-                value={vm.persona._fechaNacimiento ? new Date(vm.persona._fechaNacimiento as string).toISOString().split('T')[0] : ''}
-                onChange={e => {
-                  const dateValue = e.target.value; // formato: yyyy-mm-dd
-                  if (dateValue) {
-                    const iso = new Date(dateValue + 'T00:00:00').toISOString();
+                placeholder="DD/MM/AA"
+                value={dateInput}
+                onChange={e => setDateInput(e.target.value)}
+                onBlur={() => {
+                  const t = dateInput.trim();
+                  if (t === '') {
                     runInAction(() => {
-                      vm.persona._fechaNacimiento = iso;
-                      try {
-                        const birth = new Date(iso);
-                        const now = new Date();
-                        let years = now.getFullYear() - birth.getFullYear();
-                        const m = now.getMonth() - birth.getMonth();
-                        if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) years--;
-                        vm.persona._edad = years;
-                      } catch { /* noop */ }
+                      vm.persona._fechaNacimiento = '';
+                      vm.persona._edad = 0;
                     });
+                    return;
+                  }
+                  const dm = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/;
+                  const isoLike = /^\d{4}-\d{2}-\d{2}$/;
+                  try {
+                    let parsedDate: Date | null = null;
+                    const m = t.match(dm);
+                    if (m) {
+                      const day = Number(m[1]);
+                      const month = Number(m[2]);
+                      let year = Number(m[3]);
+                      if (String(m[3]).length === 2) {
+                        const curYY = new Date().getFullYear() % 100;
+                        year = year <= curYY ? 2000 + year : 1900 + year;
+                      }
+                      const candidate = new Date(year, month - 1, day);
+                      if (!isNaN(candidate.getTime()) && candidate.getDate() === day && (candidate.getMonth() + 1) === month && candidate.getFullYear() === year) {
+                        parsedDate = candidate;
+                      }
+                    } else if (isoLike.test(t)) {
+                      const candidate = new Date(t);
+                      if (!isNaN(candidate.getTime())) parsedDate = candidate;
+                    } else {
+                      const candidate = new Date(t);
+                      if (!isNaN(candidate.getTime())) parsedDate = candidate;
+                    }
+
+                    if (parsedDate) {
+                      runInAction(() => {
+                        vm.persona._fechaNacimiento = parsedDate!.toISOString();
+                        const now = new Date();
+                        let years = now.getFullYear() - parsedDate!.getFullYear();
+                        const mm2 = now.getMonth() - parsedDate!.getMonth();
+                        if (mm2 < 0 || (mm2 === 0 && now.getDate() < parsedDate!.getDate())) years--;
+                        vm.persona._edad = years;
+                      });
+                      const dd = String(parsedDate.getDate()).padStart(2, '0');
+                      const mm3 = String(parsedDate.getMonth() + 1).padStart(2, '0');
+                      const yyyy3 = String(parsedDate.getFullYear());
+                      // display two-digit year
+                      setDateInput(`${dd}/${mm3}/${yyyy3.slice(-2)}`);
+                    } else {
+                      // leave input for correction
+                    }
+                  } catch (err) {
+                    // keep input
                   }
                 }}
               />
-              <div style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>Selecciona la fecha con el calendario</div>
             </div>
 
             <div style={{ gridColumn: '1 / -1' }}>
@@ -258,10 +338,7 @@ function EditarInsertarPersonasView({ personaId }: Props) {
 
   // Native rendering (minimal, avoids web-only tags)
   return (
-    <ScrollView 
-      contentContainerStyle={nativeStyles.container}
-      keyboardShouldPersistTaps="handled"
-    >
+    <ScrollView contentContainerStyle={nativeStyles.container}>
       <View style={nativeStyles.header}>
         {vm.persona._foto ? (
           <Image source={{ uri: vm.persona._foto as string }} style={nativeStyles.avatar} />
@@ -296,32 +373,79 @@ function EditarInsertarPersonasView({ personaId }: Props) {
 
       <View style={nativeStyles.formRow}>
         <Text style={nativeStyles.label}>Fecha de nacimiento</Text>
+        <Text style={nativeStyles.formatHint}>Formato: DD/MM/AA (ej. 31/12/90)</Text>
         <TextInput
           style={nativeStyles.input}
-          placeholder="DD/MM/YYYY"
-          value={fechaDisplay}
-          onFocus={() => setIsEditingFecha(true)}
-          onBlur={() => setIsEditingFecha(false)}
+          placeholder="DD/MM/AA"
+          value={dateInput}
+          keyboardType={Platform.OS === 'ios' ? 'numbers-and-punctuation' : 'visible-password'}
+          autoCorrect={false}
+          maxLength={8}
+          onFocus={() => { isEditingDateRef.current = true; }}
+          onBlur={() => { isEditingDateRef.current = false; parseAndApplyDate(dateInput); }}
           onChangeText={t => {
-            setFechaDisplay(t);
-            const iso = parseDisplayToISO(t);
-            runInAction(() => {
-              if (iso) {
-                vm.persona._fechaNacimiento = iso;
-                // Recalcular edad inmediatamente
-                const parsed = new Date(iso);
-                const now = new Date();
-                let years = now.getFullYear() - parsed.getUTCFullYear();
-                const m = now.getMonth() - parsed.getUTCMonth();
-                if (m < 0 || (m === 0 && now.getDate() < parsed.getUTCDate())) years--;
-                vm.persona._edad = years;
+            // update local input only while typing to avoid aggressive reformatting
+            setDateInput(t);
+          }}
+          onEndEditing={() => {
+            const t = dateInput.trim();
+            if (t === '') {
+              runInAction(() => {
+                vm.persona._fechaNacimiento = '';
+                vm.persona._edad = 0;
+              });
+              return;
+            }
+            // Spanish formats: DD/MM/AA or DD/MM/AAAA
+            const dm = /^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/;
+            const isoLike = /^\d{4}-\d{2}-\d{2}$/;
+            try {
+              let parsedDate: Date | null = null;
+              const m = t.match(dm);
+              if (m) {
+                const day = Number(m[1]);
+                const month = Number(m[2]);
+                let year = Number(m[3]);
+                if (String(m[3]).length === 2) {
+                  const curYY = new Date().getFullYear() % 100;
+                  year = year <= curYY ? 2000 + year : 1900 + year;
+                }
+                const candidate = new Date(year, month - 1, day);
+                if (!isNaN(candidate.getTime()) && candidate.getDate() === day && (candidate.getMonth() + 1) === month && candidate.getFullYear() === year) {
+                  parsedDate = candidate;
+                }
+              } else if (isoLike.test(t)) {
+                const candidate = new Date(t);
+                if (!isNaN(candidate.getTime())) parsedDate = candidate;
               } else {
-                vm.persona._fechaNacimiento = t;
+                // try Date auto-parse as last resort
+                const candidate = new Date(t);
+                if (!isNaN(candidate.getTime())) parsedDate = candidate;
               }
-            });
+
+              if (parsedDate) {
+                runInAction(() => {
+                  vm.persona._fechaNacimiento = parsedDate!.toISOString();
+                  const now = new Date();
+                  let years = now.getFullYear() - parsedDate!.getFullYear();
+                  const mm2 = now.getMonth() - parsedDate!.getMonth();
+                  if (mm2 < 0 || (mm2 === 0 && now.getDate() < parsedDate!.getDate())) years--;
+                  vm.persona._edad = years;
+                });
+                // normalize display to DD/MM/YY (two-digit year)
+                const dd = String(parsedDate.getDate()).padStart(2, '0');
+                const mm3 = String(parsedDate.getMonth() + 1).padStart(2, '0');
+                const yyyy3 = String(parsedDate.getFullYear());
+                setDateInput(`${dd}/${mm3}/${yyyy3.slice(-2)}`);
+              } else {
+                // keep local input for user correction
+              }
+            } catch (err) {
+              // keep local input
+            }
           }}
         />
-        <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>Formato: DD/MM/YYYY (año completo de 4 dígitos)</Text>
+        <Text style={{ fontSize: 12, color: '#6b7280', marginTop: 6 }}>debug: {dateInput || 'empty'} — {String(vm.persona._fechaNacimiento || '')}</Text>
       </View>
 
       <View style={nativeStyles.formRow}>
@@ -356,11 +480,13 @@ function EditarInsertarPersonasView({ personaId }: Props) {
         <Pressable hitSlop={{ top: 12, left: 12, right: 12, bottom: 12 }} onPress={() => router.push('/personas')} style={nativeStyles.ghostBtn}><Text>Cancelar</Text></Pressable>
         <Pressable hitSlop={{ top: 12, left: 12, right: 12, bottom: 12 }} onPress={async () => {
             try {
+              // ensure any typed date is parsed/applied before saving
+              parseAndApplyDate(dateInput);
               await vm.guardar();
               router.push('/personas');
             } catch (err: any) {
               console.error('[EditarView native] guardar error', err);
-              setErrMsg('Faltan datos por rellenar');
+              setErrMsg(err?.message ?? String(err));
             }
           }} style={nativeStyles.primaryBtn}><Text style={{ color: '#fff' }}>{isEditing ? 'Guardar' : 'Crear'}</Text></Pressable>
       </View>
@@ -372,12 +498,7 @@ function EditarInsertarPersonasView({ personaId }: Props) {
 export default observer(EditarInsertarPersonasView);
 
 const nativeStyles = StyleSheet.create({
-  container: { 
-    padding: 16, 
-    paddingTop: 110, 
-    backgroundColor: '#f8fafc', 
-    paddingBottom: 300  // Aumentado de 56 a 300 para dar más espacio cuando aparece el teclado
-  },
+  container: { padding: 16, paddingTop: 110, backgroundColor: '#f8fafc', paddingBottom: 56 },
   header: { flexDirection: 'row', alignItems: 'center', marginBottom: 28 },
   avatar: { width: 64, height: 64, borderRadius: 64, backgroundColor: '#f3f4f6', marginRight: 16 },
   avatarPlaceholder: { backgroundColor: '#e5e7eb' },
@@ -391,4 +512,6 @@ const nativeStyles = StyleSheet.create({
   primaryBtn: { paddingVertical: 12, paddingHorizontal: 16, borderRadius: 8, backgroundColor: '#059669' },
   pickerWrap: { backgroundColor: '#fff', borderRadius: 8, borderWidth: 1, borderColor: '#e5e7eb' },
   imagePreview: { width: 120, height: 120, borderRadius: 8, marginTop: 12, alignSelf: 'flex-start' }
+  ,formatHint: { fontSize: 12, color: '#6b7280', marginBottom: 6 }
 });
+
