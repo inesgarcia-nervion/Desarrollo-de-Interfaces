@@ -7,7 +7,7 @@ export class GameService implements IGameService {
   private serverUrl: string;
 
   constructor(serverUrl?: string) {
-    this.serverUrl = serverUrl ?? 'https://signalrchat20260115133618-a5esfrb0f0dmdfbh.italynorth-01.azurewebsites.net/chatHub';
+    this.serverUrl = serverUrl || 'https://localhost:5001/gamehub';
   }
 
   private ensureConnection() {
