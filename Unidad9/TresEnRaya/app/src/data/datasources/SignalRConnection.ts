@@ -9,6 +9,7 @@ export class SignalRConnection {
     this.urlServidor = urlServidor;
   }
 
+  
   async conectar(): Promise<void> {}
   async desconectar(): Promise<void> {}
   async crearSala(nombreSala: string): Promise<void> {}
