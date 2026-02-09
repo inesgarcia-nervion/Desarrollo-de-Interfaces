@@ -2,18 +2,15 @@ import { IGameRepository } from '../../domain/interfaces/repositories/IGameRepos
 import { SignalRConnection } from '../datasources/SignalRConnection';
 
 export class GameRepository implements IGameRepository {
-  private signalR: SignalRConnection;
-
-  constructor(signalR: SignalRConnection) {
-    this.signalR = signalR;
-  }
+  constructor(private signalR: SignalRConnection) {}
 
   async hacerMovimiento(fila: number, columna: number): Promise<void> {
     await this.signalR.hacerMovimiento(fila, columna);
   }
 
   escucharEventos(): void {
-    // Aquí deberías suscribirte a los eventos de SignalR
+    // Aquí conectas los eventos del juego
+    // El ViewModel se suscribirá a ellos
   }
 
   async desconectarse(): Promise<void> {

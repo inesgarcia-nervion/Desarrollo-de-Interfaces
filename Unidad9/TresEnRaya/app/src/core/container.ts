@@ -11,7 +11,12 @@ import { EscucharEventosDelJuegoUseCase } from '../domain/usecases/game/Escuchar
 import { ConectarseAlJuegoUseCase } from '../domain/usecases/game/ConectarseAlJuegoUseCase';
 import { DesconectarseDelJuegoUseCase } from '../domain/usecases/game/DesconectarseDelJuegoUseCase';
 
-const signalR = new SignalRConnection('http://localhost:5000/hub');
+const signalR = new SignalRConnection('http://192.168.1.23:7037/hub');
+// Conexión con Azure
+// const signalR = new SignalRConnection('https://TUAPP.azurewebsites.net/hub');
+signalR.conectar();
+
+
 const roomRepo = new RoomRepository(signalR);
 const gameRepo = new GameRepository(signalR);
 
