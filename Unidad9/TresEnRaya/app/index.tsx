@@ -15,6 +15,8 @@ export default function Index() {
   }, []);
 
   const handleUnirseASala = async (idSala: string) => {
+    // ✅ Re-registrar los listeners antes de entrar a la sala
+    container.gameViewModel.connectGame();
     await container.roomListViewModel.unirseASala(idSala);
     setPantalla('juego');
   };

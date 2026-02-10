@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Stack } from 'expo-router';
 import { ActivityIndicator, View, Text } from 'react-native';
 import { container } from '../app/src/core/container';
+import './global.css';
 
 export default function RootLayout() {
   const [listo, setListo] = useState(false);
@@ -15,6 +16,21 @@ export default function RootLayout() {
         console.error('Error conectando a SignalR:', err);
         setError('No se pudo conectar al servidor. Comprueba tu conexión.');
       });
+
+    // Ocultar barra de navegación de Expo Web
+    if (typeof document !== 'undefined') {
+      // Buscar y ocultar todos los elementos header y nav
+      const headers = document.querySelectorAll('header, nav, [role="banner"]');
+      headers.forEach((el) => {
+        (el as HTMLElement).style.display = 'none';
+      });
+
+      // Ajustar el body para que ocupe todo el espacio
+      document.body.style.margin = '0';
+      document.body.style.padding = '0';
+      document.body.style.width = '100%';
+      document.body.style.height = '100%';
+    }
   }, []);
 
   if (error) {

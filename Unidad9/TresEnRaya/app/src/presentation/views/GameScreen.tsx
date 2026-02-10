@@ -19,23 +19,8 @@ const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) =>
     };
   }, []);
 
-  if (error) {
-    return (
-      <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          <View style={styles.card}>
-            <Text style={styles.errorText}>{error}</Text>
-            <TouchableOpacity 
-              style={[styles.btnJugarDeNuevo, { marginTop: 20 }]}
-              onPress={onVolverAlLobby}
-            >
-              <Text style={styles.btnTexto}>Volver al lobby</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </View>
-    );
-  }
+
+
 
   if (gameState.isWaiting) {
     return (
@@ -161,36 +146,44 @@ const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) =>
             </TouchableOpacity>
           )}
         </View>
+      </ScrollView>
 
-        {/* Resultado - Overlay */}
-        {gameState.gameResult && (
-          <View style={styles.resultadoOverlay}>
-            <View style={styles.resultadoCard}>
-              <Text style={[
-                styles.resultadoTitulo,
-                gameState.gameResult === 'Winner' && styles.tituloGanador,
-                gameState.gameResult === 'Loser' && styles.tituloPerdedor,
-                gameState.gameResult === 'Draw' && styles.tituloEmpate,
-              ]}>
-                {gameState.gameResult === 'Winner' ? '¡Ganaste!' :
-                 gameState.gameResult === 'Loser' ? 'Perdiste' :
-                 '¡Empate!'}
-              </Text>
-              <Text style={styles.resultadoSub}>
-                {gameState.gameResult === 'Winner' ? 'Eres el campeón' :
-                 gameState.gameResult === 'Loser' ? 'Mejor suerte la próxima' :
-                 'Nadie gana esta vez'}
-              </Text>
+      {/* Resultado - Overlay con dos botones (FUERA del ScrollView para que aparezca en web) */}
+      {gameState.gameResult && (
+        <View style={styles.resultadoOverlay}>
+          <View style={styles.resultadoCard}>
+            <Text style={[
+              styles.resultadoTitulo,
+              gameState.gameResult === 'Winner' && styles.tituloGanador,
+              gameState.gameResult === 'Loser' && styles.tituloPerdedor,
+              gameState.gameResult === 'Draw' && styles.tituloEmpate,
+            ]}>
+              {gameState.gameResult === 'Winner' ? '¡Ganaste!' :
+               gameState.gameResult === 'Loser' ? 'Perdiste' :
+               '¡Empate!'}
+            </Text>
+            <Text style={styles.resultadoSub}>
+              {gameState.gameResult === 'Winner' ? 'Eres el campeón' :
+               gameState.gameResult === 'Loser' ? 'Mejor suerte la próxima' :
+               'Nadie gana esta vez'}
+            </Text>
+            <View style={styles.botonesResultado}>
               <TouchableOpacity 
-                style={styles.btnJugarDeNuevo}
+                style={styles.btnRepetir}
+                onPress={() => viewModel.repetirPartida()}
+              >
+                <Text style={styles.btnTexto}>Repetir</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={styles.btnSalir}
                 onPress={onVolverAlLobby}
               >
-                <Text style={styles.btnTexto}>Jugar de nuevo</Text>
+                <Text style={styles.btnTextoSalir}>Salir</Text>
               </TouchableOpacity>
             </View>
           </View>
-        )}
-      </ScrollView>
+        </View>
+      )}
     </View>
   );
 });
@@ -423,6 +416,35 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
     marginBottom: 32,
+  },
+  botonesResultado: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  btnRepetir: {
+    flex: 1,
+    backgroundColor: '#007AFF',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+  },
+  btnSalir: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#FF453A',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+  },
+  btnTextoSalir: {
+    color: '#FF453A',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
   },
   btnJugarDeNuevo: {
     backgroundColor: '#007AFF',

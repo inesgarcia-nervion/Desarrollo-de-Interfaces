@@ -66,17 +66,42 @@ export class GameViewModel {
       },
 
       onTerminarJuego: (resultado, simboloGanador) => {
-        console.log('📍 TerminarJuego:', resultado, simboloGanador);
+        console.log('🏁 ==================== TERMINAR JUEGO ====================');
+        console.log('   Resultado:', resultado);
+        console.log('   Símbolo Ganador del servidor:', simboloGanador);
+        console.log('   Mi Símbolo:', this.mySymbol);
+        console.log('   Estado del Tablero:', JSON.stringify(this.gameState.board));
+        console.log('=========================================================');
+        
         this.gameState.isGameActive = false;
-        this.gameState.gameResult =
-          simboloGanador === this.mySymbol ? 'Winner' :
-          resultado === 'empate' ? 'Draw' : 'Loser';
+        
+        // ✅ CORREGIDO: Mejor lógica para determinar el resultado
+        if (resultado === 'empate' || resultado === 'Empate' || resultado === 'DRAW') {
+          this.gameState.gameResult = 'Draw';
+        } else if (simboloGanador === this.mySymbol) {
+          this.gameState.gameResult = 'Winner';
+        } else if (simboloGanador !== null && simboloGanador !== undefined && simboloGanador !== '') {
+          this.gameState.gameResult = 'Loser';
+        } else {
+          this.gameState.gameResult = 'Draw';
+        }
+        
+        console.log('   Resultado Final asignado al UI:', this.gameState.gameResult);
       },
 
       onOponenteDesconectado: () => {
         console.log('📍 OponenteDesconectado');
-        this.gameState.isGameActive = false;
-        this.error = 'El oponente se ha desconectado';
+        // Solo afectar si estamos en juego activo
+        if (this.gameState.isGameActive) {
+          console.log('  -> Juego activo, volviendo a espera');
+          this.gameState.isGameActive = false;
+          this.gameState.isWaiting = true;
+        } else if (this.gameState.isWaiting) {
+          console.log('  -> Estábamos esperando, volvemos a esperar');
+          // Ya estamos esperando, no hacer nada
+        } else {
+          console.log('  -> Estado desconocido');
+        }
       },
 
       onErrorSala: (mensaje) => {
@@ -144,6 +169,22 @@ export class GameViewModel {
     this.error = null;
     // ✅ Permitir re-registrar listeners para la próxima partida
     this.gameRepo.resetListeners();
+  }
+
+  repetirPartida() {
+    console.log('🔄 Repetir Partida - Reiniciando tablero');
+    // ✅ Limpiar solo el resultado, manteniendo la conexión a la sala
+    this.gameState.gameResult = null;
+    this.gameState.board = [
+      [null, null, null],
+      [null, null, null],
+      [null, null, null],
+    ];
+    this.gameState.isGameActive = false;
+    this.gameState.isWaiting = true;
+    this.gameState.currentTurn = 'X';
+    this.error = null;
+    console.log('✅ Tablero reiniciado, esperando inicio de nuevo juego');
   }
 }
 

@@ -24,7 +24,8 @@ export class RoomListViewModel {
   iniciarEscucha() {
     // Suscripción continua: cada vez que el servidor mande ListaSalas, actualizamos
     this.signalR.recibirListaSalas((salas) => {
-      this.salas = salas;
+      // ✅ Invertir para que las salas nuevas (creadas últimas) aparezcan primero
+      this.salas = [...salas].reverse();
       this.estaCargando = false;
     });
 
