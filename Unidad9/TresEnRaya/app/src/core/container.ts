@@ -11,25 +11,28 @@ import { EscucharEventosDelJuegoUseCase } from '../domain/usecases/game/Escuchar
 import { ConectarseAlJuegoUseCase } from '../domain/usecases/game/ConectarseAlJuegoUseCase';
 import { DesconectarseDelJuegoUseCase } from '../domain/usecases/game/DesconectarseDelJuegoUseCase';
 
-const signalR = new SignalRConnection('http://192.168.1.23:7037/hub');
-// Conexión con Azure
-// const signalR = new SignalRConnection('https://TUAPP.azurewebsites.net/hub');
-signalR.conectar();
+const signalRConnection = new SignalRConnection(
+  'https://tresenraya-hpgqdvh2fqg9f8dj.italynorth-01.azurewebsites.net/hub'
+);
 
-
-const roomRepo = new RoomRepository(signalR);
-const gameRepo = new GameRepository(signalR);
+const roomRepo = new RoomRepository(signalRConnection);
+const gameRepo = new GameRepository(signalRConnection);
 
 export const container = {
+  signalRConnection,
+
   roomListViewModel: new RoomListViewModel(
     new ObtenerListaSalasUseCase(roomRepo),
     new CrearSalaUseCase(roomRepo),
-    new UnirseASalaUseCase(roomRepo)
+    new UnirseASalaUseCase(roomRepo),
+    signalRConnection // ✅ necesario para la escucha continua
   ),
+
   gameViewModel: new GameViewModel(
     new HacerMovimientoUseCase(gameRepo),
     new EscucharEventosDelJuegoUseCase(gameRepo),
     new ConectarseAlJuegoUseCase(gameRepo),
-    new DesconectarseDelJuegoUseCase(gameRepo)
+    new DesconectarseDelJuegoUseCase(gameRepo),
+    gameRepo
   ),
 };

@@ -1,16 +1,51 @@
 import { IGameRepository } from '../../domain/interfaces/repositories/IGameRepository';
 import { SignalRConnection } from '../datasources/SignalRConnection';
 
+export type GameEventHandlers = {
+  onAsignarJugador?: (simbolo: string, estaEsperando: boolean) => void;
+  onIniciarJuego?: (inicio: any) => void;
+  onActualizarTablero?: (fila: number, columna: number, simbolo: string) => void;
+  onCambiarTurno?: (simbolo: string) => void;
+  onTerminarJuego?: (resultado: string, simboloGanador: string) => void;
+  onOponenteDesconectado?: () => void;
+  onErrorSala?: (mensaje: string) => void;
+};
+
 export class GameRepository implements IGameRepository {
+  private handlers: GameEventHandlers = {};
+
   constructor(private signalR: SignalRConnection) {}
 
   async hacerMovimiento(fila: number, columna: number): Promise<void> {
     await this.signalR.hacerMovimiento(fila, columna);
   }
 
+  // ✅ Registra los handlers que el ViewModel haya configurado
   escucharEventos(): void {
-    // Aquí conectas los eventos del juego
-    // El ViewModel se suscribirá a ellos
+    if (this.handlers.onAsignarJugador)
+      this.signalR.asignarJugador(this.handlers.onAsignarJugador);
+
+    if (this.handlers.onIniciarJuego)
+      this.signalR.iniciarJuego(this.handlers.onIniciarJuego);
+
+    if (this.handlers.onActualizarTablero)
+      this.signalR.actualizarTablero(this.handlers.onActualizarTablero);
+
+    if (this.handlers.onCambiarTurno)
+      this.signalR.cambiarTurno(this.handlers.onCambiarTurno);
+
+    if (this.handlers.onTerminarJuego)
+      this.signalR.terminarJuego(this.handlers.onTerminarJuego);
+
+    if (this.handlers.onOponenteDesconectado)
+      this.signalR.desconectarOponente(this.handlers.onOponenteDesconectado);
+
+    if (this.handlers.onErrorSala)
+      this.signalR.errorSala(this.handlers.onErrorSala);
+  }
+
+  setHandlers(handlers: GameEventHandlers): void {
+    this.handlers = handlers;
   }
 
   async desconectarse(): Promise<void> {

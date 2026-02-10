@@ -10,12 +10,46 @@ export class SignalRConnection {
   }
 
   async conectar(): Promise<void> {
+    // ✅ Si ya está conectado no vuelve a conectar
+    if (
+      this.conexion &&
+      this.conexion.state === signalR.HubConnectionState.Connected
+    ) {
+      return;
+    }
+
     this.conexion = new signalR.HubConnectionBuilder()
-      .withUrl(this.urlServidor)
+      .withUrl(this.urlServidor, {
+        // ✅ Expo Go no soporta bien WebSockets nativos,
+        // forzamos LongPolling como transporte de respaldo
+        transport:
+          signalR.HttpTransportType.WebSockets |
+          signalR.HttpTransportType.LongPolling,
+      })
       .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
       .build();
 
+    // ✅ Manejamos reconexión si se cae
+    this.conexion.onreconnecting((error) => {
+      console.warn('SignalR reconectando...', error);
+    });
+
+    this.conexion.onreconnected((connectionId) => {
+      console.log('SignalR reconectado:', connectionId);
+    });
+
+    this.conexion.onclose((error) => {
+      console.error('SignalR conexión cerrada:', error);
+    });
+
     await this.conexion.start();
+    console.log('SignalR conectado ✅');
+  }
+
+  // ✅ Nuevo método para comprobar el estado
+  estaConectado(): boolean {
+    return this.conexion?.state === signalR.HubConnectionState.Connected;
   }
 
   async desconectar(): Promise<void> {
@@ -42,7 +76,7 @@ export class SignalRConnection {
     await this.conexion?.invoke('HacerMovimiento', fila, columna);
   }
 
-  // EVENTOS DEL SERVIDOR
+  // ── EVENTOS DEL SERVIDOR ──────────────────────────────────────
 
   recibirListaSalas(callback: (salas: Room[]) => void): void {
     this.conexion?.on('ListaSalas', callback);
