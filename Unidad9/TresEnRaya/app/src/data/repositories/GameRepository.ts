@@ -13,6 +13,7 @@ export type GameEventHandlers = {
 
 export class GameRepository implements IGameRepository {
   private handlers: GameEventHandlers = {};
+  private listenersRegistered = false; // ✅ Evitar registrar duplicados
 
   constructor(private signalR: SignalRConnection) {}
 
@@ -22,6 +23,14 @@ export class GameRepository implements IGameRepository {
 
   // ✅ Registra los handlers que el ViewModel haya configurado
   escucharEventos(): void {
+    // ✅ Evitar registrar listeners múltiples veces
+    if (this.listenersRegistered) {
+      console.log('⚠️ Listeners ya registrados, saltando...');
+      return;
+    }
+    this.listenersRegistered = true;
+    console.log('📡 Registrando listeners de eventos del juego...');
+
     if (this.handlers.onAsignarJugador)
       this.signalR.asignarJugador(this.handlers.onAsignarJugador);
 
@@ -46,6 +55,11 @@ export class GameRepository implements IGameRepository {
 
   setHandlers(handlers: GameEventHandlers): void {
     this.handlers = handlers;
+  }
+
+  // ✅ Permitir re-registrar listeners para nuevas partidas
+  resetListeners(): void {
+    this.listenersRegistered = false;
   }
 
   async desconectarse(): Promise<void> {

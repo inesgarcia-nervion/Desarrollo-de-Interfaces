@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, ActivityIndicator, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import { View, ActivityIndicator, Text, StyleSheet, TouchableOpacity, TextInput, ScrollView } from 'react-native';
 import { observer } from 'mobx-react-lite';
 import { RoomListViewModel } from '../viewmodels/RoomListViewModel';
 
@@ -14,7 +14,7 @@ const RoomListScreen: React.FC<Props> = observer(({ viewModel, onCrearSala, onUn
 
   useEffect(() => {
     viewModel.iniciarEscucha();
-  }, []);
+  }, [viewModel]);
 
   const handleCrearSala = () => {
     const nombre = nombreSala.trim() || 'Sala rápida';

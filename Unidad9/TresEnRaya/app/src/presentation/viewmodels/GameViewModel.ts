@@ -142,6 +142,8 @@ export class GameViewModel {
     this.gameState = createEmptyGameState();
     this.mySymbol = null;
     this.error = null;
+    // ✅ Permitir re-registrar listeners para la próxima partida
+    this.gameRepo.resetListeners();
   }
 }
 

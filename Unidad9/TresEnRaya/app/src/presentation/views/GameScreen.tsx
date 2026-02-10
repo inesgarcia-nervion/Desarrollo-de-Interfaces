@@ -11,10 +11,11 @@ type Props = {
 const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) => {
   const { gameState, error, mySymbol } = viewModel;
 
+  // ✅ Ya no llamamos a connectGame() aquí porque se hace en Index.tsx
+  // Solo manejamos la desconexión al desmontar
   useEffect(() => {
-    viewModel.connectGame();
     return () => {
-      viewModel.disconnectGame();
+      // No desconectamos aquí para mantener la conexión al volver al lobby
     };
   }, []);
 
@@ -24,6 +25,12 @@ const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) =>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.card}>
             <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity 
+              style={[styles.btnJugarDeNuevo, { marginTop: 20 }]}
+              onPress={onVolverAlLobby}
+            >
+              <Text style={styles.btnTexto}>Volver al lobby</Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       </View>
@@ -45,6 +52,12 @@ const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) =>
               <View style={styles.spinner}>
                 <ActivityIndicator size="large" color="#007AFF" />
               </View>
+              <TouchableOpacity 
+                style={[styles.btnCancelar, { marginTop: 24 }]}
+                onPress={onVolverAlLobby}
+              >
+                <Text style={styles.btnCancelarTexto}>Cancelar</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
@@ -97,12 +110,12 @@ const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) =>
           <View style={styles.juegoHeader}>
             <View style={styles.jugadorCard}>
               <Text style={[styles.jugadorSimbolo, styles.simboloX]}>X</Text>
-              <Text style={styles.jugadorNombre}>Jugador 1</Text>
+              <Text style={styles.jugadorNombre}>Jugador1</Text>
             </View>
             <Text style={styles.vsBadge}>VS</Text>
             <View style={styles.jugadorCard}>
               <Text style={[styles.jugadorSimbolo, styles.simboloO]}>O</Text>
-              <Text style={styles.jugadorNombre}>Jugador 2</Text>
+              <Text style={styles.jugadorNombre}>Jugador2</Text>
             </View>
           </View>
 
@@ -136,6 +149,17 @@ const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) =>
               </Text>
             </Text>
           </View>
+
+          {/* Botón Cancelar Partida */}
+          {gameState.isGameActive && (
+            <TouchableOpacity 
+              style={styles.btnCancelarPartida}
+              onPress={onVolverAlLobby}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.btnCancelarPartidaTexto}>Cancelar Partida</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* Resultado - Overlay */}
@@ -219,6 +243,21 @@ const styles = StyleSheet.create({
   },
   spinner: {
     marginTop: 0,
+  },
+  btnCancelar: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#8e8e93',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    width: '100%',
+  },
+  btnCancelarTexto: {
+    color: '#8e8e93',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 
   // Header del juego
@@ -393,6 +432,22 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   btnTexto: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+
+  // Botón cancelar partida
+  btnCancelarPartida: {
+    backgroundColor: '#FF453A',
+    borderRadius: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    marginTop: 16,
+    width: '100%',
+  },
+  btnCancelarPartidaTexto: {
     color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
