@@ -16,10 +16,16 @@ const RoomListScreen: React.FC<Props> = observer(({ viewModel, onCrearSala, onUn
     viewModel.iniciarEscucha();
   }, [viewModel]);
 
-  const handleCrearSala = () => {
+  const handleCrearSala = async () => {
     const nombre = nombreSala.trim() || 'Sala rápida';
-    viewModel.crearSala(nombre);
-    setNombreSala('');
+    try {
+      const sala = await viewModel.crearSala(nombre);
+      setNombreSala('');
+      // ✅ Automáticamente unirse a la sala recién creada
+      onUnirseASala(sala.id);
+    } catch (e) {
+      console.error('Error al crear sala:', e);
+    }
   };
 
   return (
@@ -47,9 +53,8 @@ const RoomListScreen: React.FC<Props> = observer(({ viewModel, onCrearSala, onUn
               maxLength={30}
             />
             <TouchableOpacity
-              style={[styles.btnCrear, !nombreSala.trim() && styles.btnDisabled]}
+              style={[styles.btnCrear]}
               onPress={handleCrearSala}
-              disabled={!nombreSala.trim()}
               activeOpacity={0.8}
             >
               <Text style={styles.btnTexto}>Crear</Text>
@@ -74,31 +79,37 @@ const RoomListScreen: React.FC<Props> = observer(({ viewModel, onCrearSala, onUn
               No hay salas disponibles. ¡Crea una!
             </Text>
           ) : (
-            <View style={styles.listaSalasContainer}>
-              {viewModel.salas.map((item) => (
-                <View 
-                  key={item.id} 
-                  style={[styles.salaItem, item.estaLlena && styles.salaLlena]}
-                >
-                  <View style={styles.salaInfo}>
-                    <Text style={styles.salaNombre}>{item.nombre}</Text>
-                    <Text style={styles.salaJugadores}>
-                      {item.jugadoresActuales}/{item.jugadoresMaximos}
-                    </Text>
-                  </View>
-                  <TouchableOpacity
-                    style={[styles.btnUnirse, item.estaLlena && styles.btnUnirseDisabled]}
-                    onPress={() => onUnirseASala(item.id)}
-                    disabled={item.estaLlena}
-                    activeOpacity={0.7}
+            <ScrollView 
+              style={styles.listaSalasScrollView}
+              scrollEnabled={true}
+              nestedScrollEnabled={true}
+            >
+              <View style={styles.listaSalasContainer}>
+                {viewModel.salas.map((item) => (
+                  <View 
+                    key={item.id} 
+                    style={[styles.salaItem, item.estaLlena && styles.salaLlena]}
                   >
-                    <Text style={[styles.btnUnirseTexto, item.estaLlena && styles.btnUnirseTextoDisabled]}>
-                      {item.estaLlena ? 'Llena' : 'Unirse'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
+                    <View style={styles.salaInfo}>
+                      <Text style={styles.salaNombre}>{item.nombre}</Text>
+                      <Text style={styles.salaJugadores}>
+                        {item.jugadoresActuales}/{item.jugadoresMaximos}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={[styles.btnUnirse, item.estaLlena && styles.btnUnirseDisabled]}
+                      onPress={() => onUnirseASala(item.id)}
+                      disabled={item.estaLlena}
+                      activeOpacity={0.7}
+                    >
+                      <Text style={[styles.btnUnirseTexto, item.estaLlena && styles.btnUnirseTextoDisabled]}>
+                        {item.estaLlena ? 'Llena' : 'Unirse'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            </ScrollView>
           )}
         </View>
       </ScrollView>
@@ -200,9 +211,12 @@ const styles = StyleSheet.create({
     paddingVertical: 32,
     alignItems: 'center',
   },
+  listaSalasScrollView: {
+    maxHeight: 400,
+    marginBottom: 0,
+  },
   listaSalasContainer: {
     gap: 10,
-    maxHeight: 320,
   },
   salaItem: {
     flexDirection: 'row',

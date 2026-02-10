@@ -52,11 +52,13 @@ export class RoomListViewModel {
 
   async crearSala(nombre: string) {
     try {
-      await this.crearSalaUC.execute(nombre);
+      const sala = await this.crearSalaUC.execute(nombre);
       // El servidor mandará ListaSalas a todos automáticamente
+      return sala;
     } catch (e) {
       this.error = 'Error al crear la sala';
       console.error(e);
+      throw e;
     }
   }
 
