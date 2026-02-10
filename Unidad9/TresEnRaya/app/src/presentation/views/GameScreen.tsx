@@ -11,11 +11,8 @@ type Props = {
 const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) => {
   const { gameState, error, mySymbol } = viewModel;
 
-  // ✅ Ya no llamamos a connectGame() aquí porque se hace en Index.tsx
-  // Solo manejamos la desconexión al desmontar
   useEffect(() => {
     return () => {
-      // No desconectamos aquí para mantener la conexión al volver al lobby
     };
   }, []);
 
@@ -32,7 +29,7 @@ const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) =>
                 {mySymbol || 'X'}
               </Text>
               <Text style={styles.esperaTexto}>Sala creada</Text>
-              <Text style={styles.esperaSala}>—</Text>
+              <Text style={styles.esperaSala}>{gameState.roomName || '—'}</Text>
               <Text style={[styles.esperaTexto, { marginBottom: 24 }]}>Esperando al oponente...</Text>
               <View style={styles.spinner}>
                 <ActivityIndicator size="large" color="#007AFF" />
@@ -89,67 +86,7 @@ const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) =>
 
   return (
     <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.card}>
-          {/* Header con jugadores */}
-          <View style={styles.juegoHeader}>
-            <View style={styles.jugadorCard}>
-              <Text style={[styles.jugadorSimbolo, styles.simboloX]}>X</Text>
-              <Text style={styles.jugadorNombre}>Jugador1</Text>
-            </View>
-            <Text style={styles.vsBadge}>VS</Text>
-            <View style={styles.jugadorCard}>
-              <Text style={[styles.jugadorSimbolo, styles.simboloO]}>O</Text>
-              <Text style={styles.jugadorNombre}>Jugador2</Text>
-            </View>
-          </View>
-
-          {/* Indicador de turno */}
-          {!gameState.gameResult && (
-            <View style={[
-              styles.indicadorTurno,
-              gameState.currentTurn === mySymbol ? styles.miTurno : styles.otroTurno
-            ]}>
-              <Text style={[
-                styles.indicadorTexto,
-                gameState.currentTurn === mySymbol ? styles.textoMiTurno : styles.textoOtroTurno
-              ]}>
-                {gameState.currentTurn === mySymbol ? '⬤ Tu turno' : '⬤ Turno del oponente'}
-              </Text>
-            </View>
-          )}
-
-          {/* Tablero */}
-          {renderTablero()}
-
-          {/* Mi símbolo */}
-          <View style={styles.miSimboloBadge}>
-            <Text style={styles.miSimboloTexto}>
-              Juegas como{' '}
-              <Text style={[
-                styles.miSimboloValor,
-                mySymbol === 'X' ? styles.textoX : styles.textoO
-              ]}>
-                {mySymbol}
-              </Text>
-            </Text>
-          </View>
-
-          {/* Botón Cancelar Partida */}
-          {gameState.isGameActive && (
-            <TouchableOpacity 
-              style={styles.btnCancelarPartida}
-              onPress={onVolverAlLobby}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.btnCancelarPartidaTexto}>Cancelar Partida</Text>
-            </TouchableOpacity>
-          )}
-        </View>
-      </ScrollView>
-
-      {/* Resultado - Overlay con dos botones (FUERA del ScrollView para que aparezca en web) */}
-      {gameState.gameResult && (
+      {gameState.gameResult ? (
         <View style={styles.resultadoOverlay}>
           <View style={styles.resultadoCard}>
             <Text style={[
@@ -167,22 +104,64 @@ const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) =>
                gameState.gameResult === 'Loser' ? 'Mejor suerte la próxima' :
                'Nadie gana esta vez'}
             </Text>
-            <View style={styles.botonesResultado}>
-              <TouchableOpacity 
-                style={styles.btnRepetir}
-                onPress={() => viewModel.repetirPartida()}
-              >
-                <Text style={styles.btnTexto}>Repetir</Text>
-              </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.btnSalir}
-                onPress={onVolverAlLobby}
-              >
-                <Text style={styles.btnTextoSalir}>Salir</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity 
+              style={styles.btnSalir}
+              onPress={onVolverAlLobby}
+            >
+              <Text style={styles.btnTextoSalir}>Salir</Text>
+            </TouchableOpacity>
           </View>
         </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.card}>
+          <View style={styles.juegoHeader}>
+            <View style={styles.jugadorCard}>
+              <Text style={[styles.jugadorSimbolo, styles.simboloX]}>X</Text>
+              <Text style={styles.jugadorNombre}>Jugador1</Text>
+            </View>
+            <Text style={styles.vsBadge}>VS</Text>
+            <View style={styles.jugadorCard}>
+              <Text style={[styles.jugadorSimbolo, styles.simboloO]}>O</Text>
+              <Text style={styles.jugadorNombre}>Jugador2</Text>
+            </View>
+          </View>
+          {!gameState.gameResult && (
+            <View style={[
+              styles.indicadorTurno,
+              gameState.currentTurn === mySymbol ? styles.miTurno : styles.otroTurno
+            ]}>
+              <Text style={[
+                styles.indicadorTexto,
+                gameState.currentTurn === mySymbol ? styles.textoMiTurno : styles.textoOtroTurno
+              ]}>
+                {gameState.currentTurn === mySymbol ? '⬤ Tu turno' : '⬤ Turno del oponente'}
+              </Text>
+            </View>
+          )}
+          {renderTablero()}
+          <View style={styles.miSimboloBadge}>
+            <Text style={styles.miSimboloTexto}>
+              Juegas como{' '}
+              <Text style={[
+                styles.miSimboloValor,
+                mySymbol === 'X' ? styles.textoX : styles.textoO
+              ]}>
+                {mySymbol}
+              </Text>
+            </Text>
+          </View>
+          {gameState.isGameActive && (
+            <TouchableOpacity 
+              style={styles.btnCancelarPartida}
+              onPress={onVolverAlLobby}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.btnCancelarPartidaTexto}>Cancelar Partida</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      </ScrollView>
       )}
     </View>
   );
@@ -192,6 +171,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0a0a0a',
+    position: 'relative',
   },
   scrollContent: {
     padding: 20,
@@ -210,8 +190,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: 'center',
   },
-  
-  // Estilos de espera
   esperaBox: {
     alignItems: 'center',
     paddingVertical: 40,
@@ -252,8 +230,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
   },
-
-  // Header del juego
   juegoHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -283,8 +259,6 @@ const styles = StyleSheet.create({
     color: '#8e8e93',
     paddingHorizontal: 16,
   },
-
-  // Indicador de turno
   indicadorTurno: {
     borderRadius: 10,
     paddingVertical: 12,
@@ -308,8 +282,6 @@ const styles = StyleSheet.create({
   textoOtroTurno: {
     color: '#8e8e93',
   },
-
-  // Tablero
   tableroGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -352,8 +324,6 @@ const styles = StyleSheet.create({
   simboloO: {
     color: '#32D74B',
   },
-
-  // Badge mi símbolo
   miSimboloBadge: {
     backgroundColor: '#2c2c2e',
     borderRadius: 10,
@@ -369,19 +339,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginLeft: 6,
   },
-
-  // Resultado
   resultadoOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
+    flex: 1,
+    backgroundColor: '#0a0a0a',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    borderRadius: 12,
   },
   resultadoCard: {
     backgroundColor: '#1c1c1e',
@@ -417,59 +380,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 32,
   },
-  botonesResultado: {
-    flexDirection: 'row',
-    gap: 12,
-    width: '100%',
-  },
-  btnRepetir: {
-    flex: 1,
-    backgroundColor: '#007AFF',
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    justifyContent: 'center',
-  },
   btnSalir: {
-    flex: 1,
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: '#FF453A',
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    justifyContent: 'center',
-  },
-  btnTextoSalir: {
-    color: '#FF453A',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  btnJugarDeNuevo: {
-    backgroundColor: '#007AFF',
-    borderRadius: 10,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    width: '100%',
-  },
-  btnTexto: {
-    color: '#ffffff',
-    fontSize: 16,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-
-  // Botón cancelar partida
-  btnCancelarPartida: {
     backgroundColor: '#FF453A',
     borderRadius: 10,
     paddingVertical: 12,
     paddingHorizontal: 24,
-    marginTop: 16,
     width: '100%',
+    marginTop: 20,
   },
-  btnCancelarPartidaTexto: {
+  btnTextoSalir: {
     color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',

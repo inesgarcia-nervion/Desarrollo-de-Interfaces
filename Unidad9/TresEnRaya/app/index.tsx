@@ -14,9 +14,8 @@ export default function Index() {
     container.gameViewModel.connectGame();
   }, []);
 
-  const handleUnirseASala = async (idSala: string) => {
-    // ✅ Re-registrar los listeners antes de entrar a la sala
-    container.gameViewModel.connectGame();
+  const handleUnirseASala = async (idSala: string, nombreSala: string) => {
+    container.gameViewModel.setRoomName(nombreSala);
     await container.roomListViewModel.unirseASala(idSala);
     setPantalla('juego');
   };

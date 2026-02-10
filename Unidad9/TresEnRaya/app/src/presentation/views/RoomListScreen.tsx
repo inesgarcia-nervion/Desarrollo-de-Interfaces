@@ -6,7 +6,7 @@ import { RoomListViewModel } from '../viewmodels/RoomListViewModel';
 type Props = {
   viewModel: RoomListViewModel;
   onCrearSala: () => void;
-  onUnirseASala: (idSala: string) => void;
+  onUnirseASala: (idSala: string, nombreSala: string) => void;
 };
 
 const RoomListScreen: React.FC<Props> = observer(({ viewModel, onCrearSala, onUnirseASala }) => {
@@ -22,7 +22,7 @@ const RoomListScreen: React.FC<Props> = observer(({ viewModel, onCrearSala, onUn
       const sala = await viewModel.crearSala(nombre);
       setNombreSala('');
       // ✅ Automáticamente unirse a la sala recién creada
-      onUnirseASala(sala.id);
+      onUnirseASala(sala.id, sala.nombre);
     } catch (e) {
       console.error('Error al crear sala:', e);
     }
@@ -98,7 +98,7 @@ const RoomListScreen: React.FC<Props> = observer(({ viewModel, onCrearSala, onUn
                     </View>
                     <TouchableOpacity
                       style={[styles.btnUnirse, item.estaLlena && styles.btnUnirseDisabled]}
-                      onPress={() => onUnirseASala(item.id)}
+                      onPress={() => onUnirseASala(item.id, item.nombre)}
                       disabled={item.estaLlena}
                       activeOpacity={0.7}
                     >

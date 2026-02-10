@@ -6,6 +6,7 @@ export type GameState = {
   isGameActive: boolean;
   isWaiting: boolean;
   gameResult: 'Winner' | 'Loser' | 'Draw' | null;
+  roomName: string | null;
 };
 
 export function createEmptyGameState(): GameState {
@@ -17,5 +18,6 @@ export function createEmptyGameState(): GameState {
     isGameActive: false,
     isWaiting: true,
     gameResult: null,
+    roomName: null,
   };
 }

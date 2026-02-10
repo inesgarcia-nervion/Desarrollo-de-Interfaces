@@ -33,7 +33,6 @@ export class GameViewModel {
     this.setupEventos();
   }
 
-  // ✅ Configura todos los eventos antes de llamar a escucharEventos()
   private setupEventos() {
     this.gameRepo.setHandlers({
       onAsignarJugador: (simbolo, estaEsperando) => {
@@ -41,20 +40,20 @@ export class GameViewModel {
         this.mySymbol = simbolo;
         this.gameState.isWaiting = estaEsperando;
         this.gameState.player1Symbol = simbolo as 'X' | 'O';
+        this.error = null;
       },
 
       onIniciarJuego: (inicio) => {
         console.log('📍 InicioJuego:', inicio);
+        this.error = null;
         this.gameState.isGameActive = true;
         this.gameState.isWaiting = false;
-        // ✅ CORREGIDO: Usar "turno" en lugar de "turnoActual"
         this.gameState.currentTurn = (inicio?.turno || inicio?.Turno || 'X') as 'X' | 'O';
         console.log('✅ Turno inicial:', this.gameState.currentTurn, 'Mi símbolo:', this.mySymbol);
       },
 
       onActualizarTablero: (fila, columna, simbolo) => {
         console.log('📍 ActualizarTablero:', fila, columna, simbolo);
-        // MobX necesita que reemplaces el array para detectar el cambio
         const nuevoTablero = this.gameState.board.map(r => [...r]);
         nuevoTablero[fila][columna] = simbolo;
         this.gameState.board = nuevoTablero;
@@ -75,7 +74,6 @@ export class GameViewModel {
         
         this.gameState.isGameActive = false;
         
-        // ✅ CORREGIDO: Mejor lógica para determinar el resultado
         if (resultado === 'empate' || resultado === 'Empate' || resultado === 'DRAW') {
           this.gameState.gameResult = 'Draw';
         } else if (simboloGanador === this.mySymbol) {
@@ -91,14 +89,12 @@ export class GameViewModel {
 
       onOponenteDesconectado: () => {
         console.log('📍 OponenteDesconectado');
-        // Solo afectar si estamos en juego activo
         if (this.gameState.isGameActive) {
           console.log('  -> Juego activo, volviendo a espera');
           this.gameState.isGameActive = false;
           this.gameState.isWaiting = true;
         } else if (this.gameState.isWaiting) {
           console.log('  -> Estábamos esperando, volvemos a esperar');
-          // Ya estamos esperando, no hacer nada
         } else {
           console.log('  -> Estado desconocido');
         }
@@ -113,7 +109,13 @@ export class GameViewModel {
 
   async connectGame() {
     console.log('🔌 Conectando al juego...');
-    this.conectarseUC.execute(); // registra los listeners
+    this.conectarseUC.execute();
+  }
+
+  setRoomName(nombre: string) {
+    console.log('📍 Estableciendo nombre de sala:', nombre);
+    this.gameState.roomName = nombre;
+    this.error = null;
   }
 
   async disconnectGame() {
@@ -164,27 +166,12 @@ export class GameViewModel {
   }
 
   resetGame() {
+    console.log('🔄 ResetGame - Limpiando estado del juego');
     this.gameState = createEmptyGameState();
     this.mySymbol = null;
     this.error = null;
-    // ✅ Permitir re-registrar listeners para la próxima partida
     this.gameRepo.resetListeners();
-  }
-
-  repetirPartida() {
-    console.log('🔄 Repetir Partida - Reiniciando tablero');
-    // ✅ Limpiar solo el resultado, manteniendo la conexión a la sala
-    this.gameState.gameResult = null;
-    this.gameState.board = [
-      [null, null, null],
-      [null, null, null],
-      [null, null, null],
-    ];
-    this.gameState.isGameActive = false;
-    this.gameState.isWaiting = true;
-    this.gameState.currentTurn = 'X';
-    this.error = null;
-    console.log('✅ Tablero reiniciado, esperando inicio de nuevo juego');
+    this.conectarseUC.execute();
   }
 }
 
