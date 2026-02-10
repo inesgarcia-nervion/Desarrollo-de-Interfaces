@@ -12,8 +12,7 @@ export default function RootLayout() {
     container.signalRConnection
       .conectar()
       .then(() => setListo(true))
-      .catch((err) => {
-        console.error('Error conectando a SignalR:', err);
+      .catch(() => {
         setError('No se pudo conectar al servidor. Comprueba tu conexión.');
       });
 

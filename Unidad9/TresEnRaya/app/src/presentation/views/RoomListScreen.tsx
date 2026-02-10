@@ -24,7 +24,7 @@ const RoomListScreen: React.FC<Props> = observer(({ viewModel, onCrearSala, onUn
       // ✅ Automáticamente unirse a la sala recién creada
       onUnirseASala(sala.id, sala.nombre);
     } catch (e) {
-      console.error('Error al crear sala:', e);
+      // error handled in viewModel
     }
   };
 

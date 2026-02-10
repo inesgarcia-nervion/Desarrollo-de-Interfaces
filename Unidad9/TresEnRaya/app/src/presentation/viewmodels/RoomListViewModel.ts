@@ -47,7 +47,7 @@ export class RoomListViewModel {
     } catch (e) {
       this.error = 'Error al cargar las salas';
       this.estaCargando = false;
-      console.error(e);
+      // error logged elsewhere
     }
   }
 
@@ -58,7 +58,7 @@ export class RoomListViewModel {
       return sala;
     } catch (e) {
       this.error = 'Error al crear la sala';
-      console.error(e);
+      // error logged elsewhere
       throw e;
     }
   }
@@ -68,7 +68,7 @@ export class RoomListViewModel {
       await this.unirseASalaUC.execute(idSala);
     } catch (e) {
       this.error = 'Error al unirse a la sala';
-      console.error(e);
+      // error logged elsewhere
     }
   }
 }

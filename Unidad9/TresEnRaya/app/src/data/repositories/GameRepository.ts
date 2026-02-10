@@ -7,7 +7,7 @@ export type GameEventHandlers = {
   onActualizarTablero?: (fila: number, columna: number, simbolo: string) => void;
   onCambiarTurno?: (simbolo: string) => void;
   onTerminarJuego?: (resultado: string, simboloGanador: string) => void;
-  onOponenteDesconectado?: () => void;
+  onOponenteDesconectado?: (roomName?: string) => void;
   onErrorSala?: (mensaje: string) => void;
 };
 
@@ -21,13 +21,15 @@ export class GameRepository implements IGameRepository {
     await this.signalR.hacerMovimiento(fila, columna);
   }
 
+  async salirDeSala(): Promise<void> {
+    await this.signalR.salirDeSala();
+  }
+
   escucharEventos(): void {
     if (this.listenersRegistered) {
-      console.log('⚠️ Listeners ya registrados, saltando...');
       return;
     }
     this.listenersRegistered = true;
-    console.log('📡 Registrando listeners de eventos del juego...');
 
     if (this.handlers.onAsignarJugador)
       this.signalR.asignarJugador(this.handlers.onAsignarJugador);

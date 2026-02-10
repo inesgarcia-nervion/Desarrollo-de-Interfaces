@@ -15,6 +15,8 @@ export default function Index() {
   }, []);
 
   const handleUnirseASala = async (idSala: string, nombreSala: string) => {
+    // Prepare local UI state for a fresh match without re-registering listeners
+    container.gameViewModel.prepareForJoin();
     container.gameViewModel.setRoomName(nombreSala);
     await container.roomListViewModel.unirseASala(idSala);
     setPantalla('juego');
@@ -25,14 +27,20 @@ export default function Index() {
     try {
       await container.signalRConnection.salirDeSala();
     } catch (e) {
-      console.warn('Error al salir de la sala:', e);
+      // ignore
     }
     
     container.gameViewModel.resetGame();
     setPantalla('lista');
     
     // ✅ Refrescar la lista de salas para obtener el conteo actualizado
-    container.signalRConnection.obtenerSalas();
+    // Use the RoomListViewModel loader so loading state and errors are handled
+    try {
+      await container.roomListViewModel.cargarSalas();
+    } catch (e) {
+      // fall back to direct call if needed
+      container.signalRConnection.obtenerSalas();
+    }
   };
 
   if (pantalla === 'juego') {

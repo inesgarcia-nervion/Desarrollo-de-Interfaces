@@ -16,6 +16,15 @@ const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) =>
     };
   }, []);
 
+  const handleCancelar = async () => {
+    if (typeof viewModel.salirDeSalaHandler === 'function') {
+      await viewModel.salirDeSalaHandler();
+    } else {
+      await viewModel.disconnectGame();
+    }
+    if (onVolverAlLobby) onVolverAlLobby();
+  };
+
 
 
 
@@ -36,7 +45,7 @@ const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) =>
               </View>
               <TouchableOpacity 
                 style={[styles.btnCancelar, { marginTop: 24 }]}
-                onPress={onVolverAlLobby}
+                onPress={handleCancelar}
               >
                 <Text style={styles.btnCancelarTexto}>Cancelar</Text>
               </TouchableOpacity>
@@ -151,17 +160,20 @@ const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) =>
               </Text>
             </Text>
           </View>
-          {gameState.isGameActive && (
-            <TouchableOpacity 
-              style={styles.btnCancelarPartida}
-              onPress={onVolverAlLobby}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.btnCancelarPartidaTexto}>Cancelar Partida</Text>
-            </TouchableOpacity>
-          )}
+          {/** In-game cancel is now a floating button at the bottom on mobile */}
         </View>
       </ScrollView>
+      )}
+      {!gameState.isWaiting && !gameState.gameResult && gameState.isGameActive && (
+        <View style={styles.floatingCancelContainer} pointerEvents="box-none">
+          <TouchableOpacity
+            style={styles.btnCancelar}
+            onPress={handleCancelar}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.btnCancelarTexto}>Cancelar</Text>
+          </TouchableOpacity>
+        </View>
       )}
     </View>
   );
@@ -393,6 +405,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     textAlign: 'center',
+  },
+  floatingCancelContainer: {
+    position: 'absolute',
+    left: 20,
+    right: 20,
+    bottom: 56,
+    zIndex: 50,
+    alignItems: 'center',
+    // Shadow for iOS
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    // Elevation for Android
+    elevation: 6,
   },
 });
 
