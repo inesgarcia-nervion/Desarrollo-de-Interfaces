@@ -21,17 +21,15 @@ const RoomListScreen: React.FC<Props> = observer(({ viewModel, onCrearSala, onUn
     try {
       const sala = await viewModel.crearSala(nombre);
       setNombreSala('');
-      // ✅ Automáticamente unirse a la sala recién creada
       onUnirseASala(sala.id, sala.nombre);
     } catch (e) {
-      // error handled in viewModel
     }
   };
 
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
+        {}
         <View style={styles.header}>
           <Text style={styles.titulo}>Tres en Raya</Text>
           <Text style={styles.subtitulo}>Multijugador en tiempo real</Text>
@@ -40,7 +38,7 @@ const RoomListScreen: React.FC<Props> = observer(({ viewModel, onCrearSala, onUn
           </View>
         </View>
 
-        {/* Card para crear sala */}
+        {}
         <View style={styles.card}>
           <Text style={styles.cardTitulo}>Nueva Sala</Text>
           <View style={styles.inputRow}>
@@ -62,7 +60,7 @@ const RoomListScreen: React.FC<Props> = observer(({ viewModel, onCrearSala, onUn
           </View>
         </View>
 
-        {/* Card de salas disponibles */}
+        {}
         <View style={styles.card}>
           <Text style={styles.cardTitulo}>Salas Disponibles</Text>
           
@@ -174,7 +172,6 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   
-  // Input y botón crear
   inputRow: {
     flexDirection: 'row',
     gap: 10,
@@ -206,7 +203,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   
-  // Lista de salas
   loadingContainer: {
     paddingVertical: 32,
     alignItems: 'center',

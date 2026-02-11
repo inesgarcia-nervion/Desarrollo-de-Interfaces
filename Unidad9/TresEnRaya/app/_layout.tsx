@@ -16,15 +16,12 @@ export default function RootLayout() {
         setError('No se pudo conectar al servidor. Comprueba tu conexión.');
       });
 
-    // Ocultar barra de navegación de Expo Web
     if (typeof document !== 'undefined') {
-      // Buscar y ocultar todos los elementos header y nav
       const headers = document.querySelectorAll('header, nav, [role="banner"]');
       headers.forEach((el) => {
         (el as HTMLElement).style.display = 'none';
       });
 
-      // Ajustar el body para que ocupe todo el espacio
       document.body.style.margin = '0';
       document.body.style.padding = '0';
       document.body.style.width = '100%';

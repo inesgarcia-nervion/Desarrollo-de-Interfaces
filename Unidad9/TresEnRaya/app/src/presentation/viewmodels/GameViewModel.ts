@@ -36,9 +36,6 @@ export class GameViewModel {
   private setupEventos() {
     this.gameRepo.setHandlers({
       onAsignarJugador: (simbolo, estaEsperando) => {
-        // ✅ Siempre actualizar mySymbol cuando llega AsignacionJugador.
-        // El servidor lo manda tanto al unirse como al iniciar cada nueva partida
-        // para garantizar que ambos jugadores tienen el símbolo correcto.
         this.mySymbol = simbolo;
         this.gameState.isWaiting = estaEsperando;
         this.gameState.player1Symbol = simbolo as 'X' | 'O';
@@ -52,8 +49,6 @@ export class GameViewModel {
         this.gameState.isGameActive = true;
         this.gameState.isWaiting = false;
         this.gameState.currentTurn = (inicio?.turno || inicio?.Turno || 'X') as 'X' | 'O';
-        // ✅ mySymbol ya fue actualizado por el AsignacionJugador previo al InicioJuego.
-        // No hace falta tocarlo aquí.
       },
 
       onActualizarTablero: (fila, columna, simbolo) => {
@@ -85,9 +80,6 @@ export class GameViewModel {
         this.gameState.isGameActive = false;
         this.gameState.isWaiting = true;
         if (roomName) this.gameState.roomName = roomName;
-        // ✅ NO resetear mySymbol aquí. El servidor mandará AsignacionJugador
-        // de confirmación con el símbolo actual (estaEsperando=true), que
-        // actualizará mySymbol si fuera necesario.
       },
 
       onErrorSala: (mensaje) => {
@@ -161,20 +153,12 @@ export class GameViewModel {
     this.resetLocalGameState();
   }
 
-  // ✅ FIX CLAVE: prepareForJoin NO resetea mySymbol.
-  // El símbolo llegará vía AsignacionJugador desde el servidor,
-  // que ahora se manda a ambos jugadores al iniciar cada partida.
-  // Si se resetea aquí a null y AsignacionJugador llega antes que InicioJuego
-  // (el orden normal), todo va bien. Pero si por alguna razón InicioJuego
-  // llega primero, canMakeMove devolvería false porque mySymbol = null.
-  // Mantener el valor anterior es siempre más seguro.
   prepareForJoin() {
     this.gameState.gameResult = null;
     this.gameState.board = createEmptyGameState().board;
     this.gameState.isGameActive = false;
     this.gameState.currentTurn = 'X';
     this.gameState.isWaiting = true;
-    // ✅ NO poner mySymbol = null aquí
     this.error = null;
   }
 }

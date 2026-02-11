@@ -160,7 +160,7 @@ const GameScreen: React.FC<Props> = observer(({ viewModel, onVolverAlLobby }) =>
               </Text>
             </Text>
           </View>
-          {/** In-game cancel is now a floating button at the bottom on mobile */}
+          {}
         </View>
       </ScrollView>
       )}
@@ -413,12 +413,10 @@ const styles = StyleSheet.create({
     bottom: 56,
     zIndex: 50,
     alignItems: 'center',
-    // Shadow for iOS
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 6,
-    // Elevation for Android
     elevation: 6,
   },
 });

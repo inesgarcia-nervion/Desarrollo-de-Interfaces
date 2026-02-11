@@ -25,7 +25,7 @@ export const container = {
     new ObtenerListaSalasUseCase(roomRepo),
     new CrearSalaUseCase(roomRepo),
     new UnirseASalaUseCase(roomRepo),
-    signalRConnection // ✅ necesario para la escucha continua
+    signalRConnection 
   ),
 
   gameViewModel: new GameViewModel(
