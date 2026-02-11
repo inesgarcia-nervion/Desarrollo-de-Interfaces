@@ -15,31 +15,45 @@ export default function Index() {
   }, []);
 
   const handleUnirseASala = async (idSala: string, nombreSala: string) => {
-    // Prepare local UI state for a fresh match without re-registering listeners
+    // ✅ Prepare local UI state for a fresh match without re-registering listeners
     container.gameViewModel.prepareForJoin();
     container.gameViewModel.setRoomName(nombreSala);
-    await container.roomListViewModel.unirseASala(idSala);
-    setPantalla('juego');
+    
+    try {
+      await container.roomListViewModel.unirseASala(idSala);
+      setPantalla('juego');
+    } catch (e) {
+      // Handle error - stay on lobby screen
+      console.error('Error joining room:', e);
+    }
   };
 
   const handleVolverAlLobby = async () => {
-    // ✅ Notificar al servidor que salimos de la sala
-    try {
-      await container.signalRConnection.salirDeSala();
-    } catch (e) {
-      // ignore
-    }
-    
-    container.gameViewModel.resetGame();
+    // ✅ CRITICAL: First set the screen back to lobby IMMEDIATELY
+    // This prevents the user from seeing stale game state
     setPantalla('lista');
     
-    // ✅ Refrescar la lista de salas para obtener el conteo actualizado
-    // Use the RoomListViewModel loader so loading state and errors are handled
+    // ✅ Then handle cleanup asynchronously
+    try {
+      // Notify server we're leaving the room
+      await container.signalRConnection.salirDeSala();
+    } catch (e) {
+      console.error('Error leaving room:', e);
+    }
+    
+    // ✅ Reset local game state
+    container.gameViewModel.resetGame();
+    
+    // ✅ Refresh room list to show updated player counts
     try {
       await container.roomListViewModel.cargarSalas();
     } catch (e) {
-      // fall back to direct call if needed
-      container.signalRConnection.obtenerSalas();
+      // Fallback to direct call if needed
+      try {
+        await container.signalRConnection.obtenerSalas();
+      } catch (err) {
+        console.error('Error refreshing room list:', err);
+      }
     }
   };
 

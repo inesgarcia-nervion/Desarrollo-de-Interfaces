@@ -103,6 +103,7 @@ export class GameViewModel {
 
   async salirDeSalaHandler() {
     try {
+      // ✅ CRITICAL FIX: Properly leave the room on the server
       if (this.gameRepo && typeof this.gameRepo.salirDeSala === 'function') {
         await this.gameRepo.salirDeSala();
       } else {
@@ -111,9 +112,16 @@ export class GameViewModel {
     } catch (e) {
       this.error = 'Error al salir de sala';
     } finally {
-      this.gameState.isWaiting = false;
-      this.gameState.roomName = null;
+      // ✅ Reset all game state to allow re-joining
+      this.resetLocalGameState();
     }
+  }
+
+  // ✅ NEW: Separate method to reset only local state without disconnecting
+  private resetLocalGameState() {
+    this.gameState = createEmptyGameState();
+    this.mySymbol = null;
+    this.error = null;
   }
 
   async handleCellPress(row: number, col: number) {
@@ -144,18 +152,21 @@ export class GameViewModel {
     return true;
   }
 
+  // ✅ IMPROVED: Full reset for returning to lobby
   resetGame() {
-    this.gameState = createEmptyGameState();
-    this.mySymbol = null;
-    this.error = null;
-    this.gameRepo.resetListeners();
-    this.conectarseUC.execute();
+    this.resetLocalGameState();
+    // Don't reset listeners - they should persist across games
+    // this.gameRepo.resetListeners(); // REMOVED
+    // Re-register is handled in Index component
   }
+
+  // ✅ IMPROVED: Prepare for joining without resetting listeners
   prepareForJoin() {
     this.gameState.gameResult = null;
     this.gameState.board = createEmptyGameState().board;
     this.gameState.isGameActive = false;
     this.gameState.currentTurn = 'X';
+    this.gameState.isWaiting = false; // ✅ Set to false initially
     this.mySymbol = null;
     this.error = null;
   }
